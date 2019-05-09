@@ -3,4 +3,8 @@
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
+
+    <!-- We can add more cool colors here but its best to use 3 depending on use -->
+    <color name="blue_link">#4D94FF</color>
+    <color name="black">#000000</color>
 </resources>
