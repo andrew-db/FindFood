@@ -1,0 +1,83 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+
+            <RelativeLayout
+                android:id="@+id/relLayout_register"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="20dp">
+
+                <TextView
+                    android:id="@+id/textEmailReg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="30dp"
+                    android:text="@string/email_registration"
+                    android:textColor="@color/black"
+                    android:textSize="25sp" />
+
+
+                <EditText
+                    android:id="@+id/input_email"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/textEmailReg"
+                    android:layout_marginTop="30dp"
+                    android:hint="@string/prompt_email"
+                    android:inputType="textEmailAddress" />
+
+
+                <EditText
+                    android:id="@+id/input_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/input_email"
+                    android:layout_marginTop="20dp"
+                    android:hint="@string/password"
+                    android:inputType="textPassword" />
+
+                <EditText
+                    android:id="@+id/input_confirm_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/input_password"
+                    android:layout_marginTop="20dp"
+                    android:hint="@string/confirm_password"
+                    android:inputType="textPassword" />
+
+
+                <android.support.v7.widget.AppCompatButton
+                    android:id="@+id/btn_register"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/input_confirm_password"
+                    android:layout_marginTop="35dp"
+                    android:background="@drawable/theme_button"
+                    android:text="@string/register" />
+
+            </RelativeLayout>
+
+
+        </RelativeLayout>
+    </ScrollView>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="120dp"
+        android:visibility="invisible" />
+
+</RelativeLayout>
