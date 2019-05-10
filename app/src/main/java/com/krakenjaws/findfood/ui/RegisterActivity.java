@@ -26,18 +26,18 @@ import com.krakenjaws.findfood.models.User;
 import static android.text.TextUtils.isEmpty;
 import static com.krakenjaws.findfood.util.Check.doStringsMatch;
 
-/**
- * Created by Andrew on 5/8/2019.
- */
-public class RegisterActivity extends AppCompatActivity implements View.OnClickListener {
+
+public class RegisterActivity extends AppCompatActivity implements
+        View.OnClickListener {
     private static final String TAG = "RegisterActivity";
 
-    // widgets
+    //widgets
     private EditText mEmail, mPassword, mConfirmPassword;
     private ProgressBar mProgressBar;
 
-    // variables
+    //vars
     private FirebaseFirestore mDb;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -58,8 +58,8 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     /**
      * Register a new email and password to Firebase Authentication
      *
-     * @param email    A user's client email
-     * @param password A user's secret password
+     * @param email
+     * @param password
      */
     public void registerNewEmail(final String email, String password) {
 
@@ -125,6 +125,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         finish();
     }
 
+
     private void showDialog() {
         mProgressBar.setVisibility(View.VISIBLE);
 
@@ -142,28 +143,24 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.btn_register: {
-                Log.d(TAG, "onClick: attempting to register.");
+        //check for null valued EditText fields
+        if (view.getId() == R.id.btn_register) {
+            Log.d(TAG, "onClick: attempting to register.");
+            if (!isEmpty(mEmail.getText().toString())
+                    && !isEmpty(mPassword.getText().toString())
+                    && !isEmpty(mConfirmPassword.getText().toString())) {
 
-                //check for null valued EditText fields
-                if (!isEmpty(mEmail.getText().toString())
-                        && !isEmpty(mPassword.getText().toString())
-                        && !isEmpty(mConfirmPassword.getText().toString())) {
+                //check if passwords match
+                if (doStringsMatch(mPassword.getText().toString(), mConfirmPassword.getText().toString())) {
 
-                    //check if passwords match
-                    if (doStringsMatch(mPassword.getText().toString(), mConfirmPassword.getText().toString())) {
-
-                        //Initiate registration task
-                        registerNewEmail(mEmail.getText().toString(), mPassword.getText().toString());
-                    } else {
-                        Toast.makeText(RegisterActivity.this, "Passwords do not Match", Toast.LENGTH_SHORT).show();
-                    }
-
+                    //Initiate registration task
+                    registerNewEmail(mEmail.getText().toString(), mPassword.getText().toString());
                 } else {
-                    Toast.makeText(RegisterActivity.this, "You must fill out all the fields", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegisterActivity.this, "Passwords do not Match", Toast.LENGTH_SHORT).show();
                 }
-                break;
+
+            } else {
+                Toast.makeText(RegisterActivity.this, "You must fill out all the fields", Toast.LENGTH_SHORT).show();
             }
         }
     }

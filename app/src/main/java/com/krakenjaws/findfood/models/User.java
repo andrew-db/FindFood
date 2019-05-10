@@ -2,26 +2,24 @@ package com.krakenjaws.findfood.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
-/**
- * Created by Andrew on 5/8/2019.
- */
 public class User implements Parcelable {
 
-    // A user has these:
     private String email;
     private String user_id;
     private String username;
     private String avatar;
-
-    public User() { // empty constructor is needed
-    }
 
     public User(String email, String user_id, String username, String avatar) {
         this.email = email;
         this.user_id = user_id;
         this.username = username;
         this.avatar = avatar;
+    }
+
+    public User() {
+        // Empty constructor required
     }
 
     protected User(Parcel in) {
@@ -42,6 +40,18 @@ public class User implements Parcelable {
             return new User[size];
         }
     };
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
+    public static Creator<User> getCREATOR() {
+        return CREATOR;
+    }
 
     public String getEmail() {
         return email;
@@ -67,18 +77,7 @@ public class User implements Parcelable {
         this.username = username;
     }
 
-    public String getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
-    }
-
-    public static Creator<User> getCREATOR() {
-        return CREATOR;
-    }
-
+    @NonNull
     @Override
     public String toString() {
         return "User{" +

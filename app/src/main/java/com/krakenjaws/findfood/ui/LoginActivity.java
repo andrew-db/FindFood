@@ -3,7 +3,6 @@ package com.krakenjaws.findfood.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -28,59 +27,49 @@ import com.krakenjaws.findfood.models.User;
 
 import static android.text.TextUtils.isEmpty;
 
-/**
- * Created by Andrew on 5/8/2019.
- */
-public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
+public class LoginActivity extends AppCompatActivity implements
+        View.OnClickListener {
     private static final String TAG = "LoginActivity";
 
-    // Firebase Authentication
+    //Firebase
     private FirebaseAuth.AuthStateListener mAuthListener;
 
-    // Widgets
+    // widgets
     private EditText mEmail, mPassword;
     private ProgressBar mProgressBar;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         mEmail = findViewById(R.id.email);
         mPassword = findViewById(R.id.password);
         mProgressBar = findViewById(R.id.progressBar);
-        // Initialize Firebase Auth
+
         setupFirebaseAuth();
         findViewById(R.id.email_sign_in_button).setOnClickListener(this);
         findViewById(R.id.link_register).setOnClickListener(this);
-        // Hide the view of our keyboard
+
         hideSoftKeyboard();
     }
 
-    /**
-     * This is the blue circular loading screen icon
-     */
     private void showDialog() {
         mProgressBar.setVisibility(View.VISIBLE);
+
     }
 
-    /**
-     * We can hide the progress bar when not needed
-     */
     private void hideDialog() {
         if (mProgressBar.getVisibility() == View.VISIBLE) {
             mProgressBar.setVisibility(View.INVISIBLE);
         }
     }
 
-    /**
-     * Hiding the keyboard
-     */
     private void hideSoftKeyboard() {
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
-    /**
-     * -------------------Firebase Setup-------------------
+    /*
+        ----------------------------- Firebase setup ---------------------------------
      */
     private void setupFirebaseAuth() {
         Log.d(TAG, "setupFirebaseAuth: started.");
@@ -90,9 +79,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
-                    Log.d(TAG, "onAuthStateChanged: signed in as: " + user.getUid());
+                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
                     Toast.makeText(LoginActivity.this, "Authenticated with: " + user.getEmail(), Toast.LENGTH_SHORT).show();
-                    // Add a comment here
+
                     FirebaseFirestore db = FirebaseFirestore.getInstance();
                     FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
                             .setTimestampsInSnapshotsEnabled(true)
@@ -117,38 +106,30 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
                     finish();
+
                 } else {
-                    // User must be signed out
-                    Log.d(TAG, "onAuthStateChanged: signed out");
+                    // User is signed out
+                    Log.d(TAG, "onAuthStateChanged:signed_out");
                 }
                 // ...
             }
         };
     }
 
-    /**
-     * Check if user is already authenticated
-     */
     @Override
-    protected void onStart() {
+    public void onStart() {
         super.onStart();
         FirebaseAuth.getInstance().addAuthStateListener(mAuthListener);
     }
 
-    /**
-     * Remove the authentication when app has stopped
-     */
     @Override
-    protected void onStop() {
+    public void onStop() {
         super.onStop();
         if (mAuthListener != null) {
             FirebaseAuth.getInstance().removeAuthStateListener(mAuthListener);
         }
     }
 
-    /**
-     * How login to our app
-     */
     private void signIn() {
         //check if the fields are filled out
         if (!isEmpty(mEmail.getText().toString())
@@ -178,21 +159,19 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
     }
 
-    /**
-     * Two buttons as of now register or sign in
-     *
-     * @param v The view that we are checking for click activity
-     */
     @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.link_register:
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.link_register: {
                 Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
                 startActivity(intent);
                 break;
-            case R.id.email_sign_in_button:
+            }
+
+            case R.id.email_sign_in_button: {
                 signIn();
                 break;
+            }
         }
     }
 }

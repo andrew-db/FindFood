@@ -7,4 +7,6 @@
     <!-- We can add more cool colors here but its best to use 3 depending on use -->
     <color name="blue_link">#4D94FF</color>
     <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="grey">#c3c3c3</color>
 </resources>
