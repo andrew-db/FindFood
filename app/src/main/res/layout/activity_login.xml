@@ -46,7 +46,7 @@
                 android:textStyle="bold" />
 
             <RelativeLayout
-                android:id="@+id/relLayout_login"
+                android:id="@+id/relLayout1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 

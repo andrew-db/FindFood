@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">FindFood</string>
 
+    <string name="google_maps_api_key">AIzaSyCgLleMvDsfxXUUMT78WSXaL1PkILcCWzI</string>
+
     <!-- String related to login -->
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password (optional)</string>
