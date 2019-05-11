@@ -7,8 +7,8 @@
 4) Profiles
 5) Travel to Restaurant using Google Maps
 6) Chatrooms
-7) Real-time Location Markers??
-8) ...
+7) Be able to randomly select a Restaurant from the List
+8) Real-time Location Markers??
 9) Profit?
 
 ## This application may use the following APIs:
