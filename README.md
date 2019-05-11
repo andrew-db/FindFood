@@ -12,12 +12,14 @@
 9) Profit?
 
 ## This application may use the following APIs:
->>Firebase Firestore
+>> Firebase Firestore
 
->>Google Maps API
+>> Google Maps API
 
->>Google Places API
+>> Google Places API
 
->>Google Geocoding API
+>> Google Geocoding API
 
->>Google Distance Matrix API
+>> Google Distance Matrix API
+
+>> Google Directions API
