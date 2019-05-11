@@ -1,13 +1,20 @@
 package com.krakenjaws.findfood.ui;
 
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.krakenjaws.findfood.R;
@@ -17,6 +24,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final String TAG = "MainActivity";
 
     //widgets
+    private RelativeLayout mRelativeLayout;
     private ProgressBar mProgressBar;
 
     //vars
@@ -33,19 +41,50 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         mProgressBar = findViewById(R.id.progressBar);
         mRestuarantsRecyclerView = findViewById(R.id.restuarants_recycler_view);
-
+        mRelativeLayout = findViewById(R.id.relLayout_main);
 //        findViewById(R.id.fab_create_chatroom).setOnClickListener(this);
 
 //        mDb = FirebaseFirestore.getInstance();
 
         initSupportActionBar();
 //        initChatroomRecyclerView();
+
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        if (networkInfo != null && networkInfo.isConnected()) {
+            showSnack(true);
+        } else {
+            mProgressBar.setVisibility(View.GONE);
+            showSnack(false);
+        }
     }
 
     private void initSupportActionBar() {
         setTitle("Find Nearby Restaurants");
     }
 
+
+    public void showSnack(boolean isConnected) {
+        int color;
+        String message;
+
+        if (isConnected) {
+            message = "Good! Connected to Internet";
+            color = Color.WHITE;
+//            getUserLocation(); // debug this
+        } else {
+            message = "Sorry! Not connected to internet";
+            color = Color.RED;
+        }
+
+        Snackbar snackbar = Snackbar
+                .make(mRelativeLayout, message, Snackbar.LENGTH_LONG);
+
+        View sbView = snackbar.getView();
+        TextView textView = sbView.findViewById(android.support.design.R.id.snackbar_text);
+        textView.setTextColor(color);
+        snackbar.show();
+    }
 
     @Override
     public void onClick(View view) {
