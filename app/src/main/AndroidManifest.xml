@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.krakenjaws.findfood">
 
+    <!-- Very Important -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <!-- To access GPS -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -19,7 +23,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <!-- We will added future ui activities here -->
         <activity android:name=".ui.MainActivity" />
         <activity android:name=".ui.LoginActivity">
             <intent-filter>
@@ -28,6 +31,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <!-- We will added future ui activities here -->
         <activity android:name=".ui.RegisterActivity" />
         <activity android:name=".ui.ProfileActivity" />
         <!--<activity android:name=".ui.ChatroomActivity" />-->

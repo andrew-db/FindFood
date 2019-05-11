@@ -4,7 +4,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.krakenjaws.findfood"
-        minSdkVersion 14 // This allows us to run on 100% android devices
+        minSdkVersion 16 // This allows us to run on 99.4% of android devices
         targetSdkVersion 28 // Android Q
         versionCode 1
         versionName "1.0"
@@ -48,11 +48,11 @@ dependencies {
     implementation 'com.android.support:multidex:1.0.3'
 
     // Firebase Core
-    implementation 'com.google.firebase:firebase-core:16.0.8'
+    implementation 'com.google.firebase:firebase-core:16.0.9'
     // Firebase Authentication
-    implementation 'com.google.firebase:firebase-auth:16.2.1'
+    implementation 'com.google.firebase:firebase-auth:17.0.0'
     // Firestore Firestore
-    implementation 'com.google.firebase:firebase-firestore:18.2.0'
+    implementation 'com.google.firebase:firebase-firestore:19.0.0'
 
     // Glide
     implementation 'com.github.bumptech.glide:glide:4.9.0'
@@ -76,10 +76,15 @@ dependencies {
     // Converter Gson
     implementation 'com.squareup.retrofit2:converter-gson:2.1.0'
 
+    // Okhttp3
+    implementation 'com.squareup.okhttp3:okhttp:3.10.0'
     // Logging Interceptor
     implementation 'com.squareup.okhttp3:logging-interceptor:3.4.1'
+
     // Okhttp
-    implementation 'com.squareup.okhttp3:okhttp:3.10.0'
+    implementation 'com.squareup.okhttp:okhttp:2.7.5'
+    // URL Connection
+    implementation 'com.squareup.okhttp:okhttp-urlconnection:1.6.0'
 
     // Picasso
     implementation 'com.squareup.picasso:picasso:2.4.0'
