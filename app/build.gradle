@@ -42,6 +42,8 @@ dependencies {
     implementation 'com.android.support:design:28.0.0'
     // RecyclerView
     implementation 'com.android.support:recyclerview-v7:28.0.0'
+    // CardView
+    implementation 'com.android.support:cardview-v7:28.0.0'
     // Support Multidex for apps with over 64K methods
     implementation 'com.android.support:multidex:1.0.3'
 
@@ -59,10 +61,12 @@ dependencies {
     // Circle ImageView
     implementation 'de.hdodenhof:circleimageview:3.0.0'
 
-    // Play Services Location
+    // Google Play Services Location
     implementation 'com.google.android.gms:play-services-location:16.0.0'
     // Play Services Places
     implementation 'com.google.android.gms:play-services-places:16.1.0'
+    // Play Services Maps
+    implementation 'com.google.android.gms:play-services-maps:16.1.0'
 
     // Gson
     implementation 'com.google.code.gson:gson:2.8.2'
@@ -77,8 +81,6 @@ dependencies {
     // Okhttp
     implementation 'com.squareup.okhttp3:okhttp:3.10.0'
 
-    // CardView
-    implementation 'com.android.support:cardview-v7:28.0.0'
     // Picasso
     implementation 'com.squareup.picasso:picasso:2.4.0'
     // More dependencies
