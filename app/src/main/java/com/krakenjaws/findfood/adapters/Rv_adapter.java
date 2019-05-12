@@ -2,7 +2,6 @@ package com.krakenjaws.findfood.adapters;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -69,18 +68,20 @@ public class Rv_adapter extends RecyclerView.Adapter<MyViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
+    public void onBindViewHolder(MyViewHolder holder, int position) {
         if (holder.view_type == TYPE_LIST) {
             holder.res_name.setText(storeModels.get(holder.getAdapterPosition() - 1).name);
 
-            Picasso.with(context).load(storeModels.get(holder.getAdapterPosition() - 1).photourl)
-                    .placeholder(R.drawable.placeholder).resize(100, 100).into(holder.res_image);
+            Picasso.get()
+                    .load(storeModels.get(holder.getAdapterPosition() - 1).photourl)
+                    .placeholder(R.drawable.placeholder).resize(100, 100)
+                    .into(holder.res_image);
 
 
             holder.res_address.setText(storeModels.get(holder.getAdapterPosition() - 1).address);
 
             if (storeModels.get(holder.getAdapterPosition() - 1).phone_no == null) {
-                holder.res_phone.setText("n/a");
+                holder.res_phone.setText("N/A");
             } else
                 holder.res_phone.setText(storeModels.get(holder.getAdapterPosition() - 1).phone_no);
 
@@ -123,16 +124,16 @@ public class Rv_adapter extends RecyclerView.Adapter<MyViewHolder> {
             if (viewType == TYPE_LIST) {
 
                 view_type = 1;
-                this.res_name = itemView.findViewById(R.id.name);
-                this.res_rating = itemView.findViewById(R.id.rating);
-                this.res_address = itemView.findViewById(R.id.address);
-                this.res_phone = itemView.findViewById(R.id.phone);
-                this.res_distance = itemView.findViewById(distance);
-                this.res_image = itemView.findViewById(R.id.res_image);
+                this.res_name = (TextView) itemView.findViewById(R.id.name);
+                this.res_rating = (TextView) itemView.findViewById(R.id.rating);
+                this.res_address = (TextView) itemView.findViewById(R.id.address);
+                this.res_phone = (TextView) itemView.findViewById(R.id.phone);
+                this.res_distance = (TextView) itemView.findViewById(distance);
+                this.res_image = (ImageView) itemView.findViewById(R.id.res_image);
             } else if (viewType == TYPE_HEAD) {
                 view_type = 0;
-                this.current_location = itemView.findViewById(R.id.location_tv);
-                this.location_image = itemView.findViewById(R.id.current_location);
+                this.current_location = (TextView) itemView.findViewById(R.id.location_tv);
+                this.location_image = (ImageView) itemView.findViewById(R.id.current_location);
                 location_image.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View view) {

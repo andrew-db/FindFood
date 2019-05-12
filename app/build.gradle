@@ -82,12 +82,12 @@ dependencies {
     implementation 'com.squareup.okhttp3:logging-interceptor:3.4.1'
 
     // Okhttp
-    implementation 'com.squareup.okhttp:okhttp:2.7.5'
+//    implementation 'com.squareup.okhttp:okhttp:2.7.5'
     // URL Connection
-    implementation 'com.squareup.okhttp:okhttp-urlconnection:1.6.0'
+//    implementation 'com.squareup.okhttp:okhttp-urlconnection:1.6.0'
 
     // Picasso
-    implementation 'com.squareup.picasso:picasso:2.4.0'
+    implementation 'com.squareup.picasso:picasso:2.71828'
     // More dependencies
 
 }

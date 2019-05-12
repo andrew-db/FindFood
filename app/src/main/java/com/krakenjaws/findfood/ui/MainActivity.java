@@ -1,6 +1,5 @@
 package com.krakenjaws.findfood.ui;
 
-import android.Manifest;
 import android.Manifest.permission;
 import android.app.Dialog;
 import android.content.Context;
@@ -48,6 +47,8 @@ import com.krakenjaws.findfood.adapters.Rv_adapter;
 import com.krakenjaws.findfood.modals.PlacesDetails_Modal;
 import com.krakenjaws.findfood.response.DistanceResponse;
 import com.krakenjaws.findfood.response.PlacesResponse;
+import com.krakenjaws.findfood.response.PlacesResponse.CustomA;
+import com.krakenjaws.findfood.response.PlacesResponse.Root;
 import com.krakenjaws.findfood.response.Places_details;
 
 import java.util.ArrayList;
@@ -92,9 +93,10 @@ public class MainActivity extends AppCompatActivity
     private GoogleApiClient mGoogleApiClient;
     private String mAddressOutput;
     private String mLatLngString;
-    private double mSource_lat, mSource_lng;
+    protected Location mLastLocation;
+    public double mSourceLat, mSourceLng;
     private long radius = 3 * 1000;
-    private Location mLastLocation;
+    public String Location_type = "ROOFTOP";
 
 //    private ArrayList<Chatroom> mChatrooms = new ArrayList<>();
 //    private Set<String> mChatroomIds = new HashSet<>();
@@ -145,10 +147,10 @@ public class MainActivity extends AppCompatActivity
     private void fetchStores(String placeType) {
 
         Call<PlacesResponse.Root> call = mAPIService.doPlaces(mLatLngString, radius, placeType, GCP_API_KEY);
-        call.enqueue(new Callback<PlacesResponse.Root>() {
+        call.enqueue(new Callback<Root>() {
             @Override
             public void onResponse(Call<PlacesResponse.Root> call, Response<PlacesResponse.Root> response) {
-                PlacesResponse.Root root = response.body();
+                PlacesResponse.Root root = (Root) response.body();
 
 
                 if (response.isSuccessful()) {
@@ -158,14 +160,14 @@ public class MainActivity extends AppCompatActivity
 
                             results = root.customA;
 
-                            details_modal = new ArrayList<>();
+                            details_modal = new ArrayList<PlacesDetails_Modal>();
                             String photourl;
-                            Log.d(TAG, "onResponse: fetching nearby restaurants");
+                            Log.i(TAG, "fetch stores");
 
 
                             for (int i = 0; i < results.size(); i++) {
 
-                                PlacesResponse.CustomA info = results.get(i);
+                                CustomA info = (CustomA) results.get(i);
 
                                 String place_id = results.get(i).place_id;
 
@@ -178,13 +180,15 @@ public class MainActivity extends AppCompatActivity
                                             "&key=" + GCP_API_KEY;
 
                                 } else {
-                                    photourl = "N/A";
+                                    photourl = "NA";
                                 }
 
                                 fetchDistance(info, place_id, photourl);
 
-                                Log.d(TAG, "onResponse: coords: " + info.geometry.locationA.lat + ", " + info.geometry.locationA.lng);
-                                Log.d(TAG, "onResponse: names: " + info.name);
+
+                                Log.i("Coordinates  ", info.geometry.locationA.lat + " , " + info.geometry.locationA.lng);
+                                Log.i("Names  ", info.name);
+
                             }
 
                             break;
@@ -220,17 +224,16 @@ public class MainActivity extends AppCompatActivity
 
 
     private void fetchDistance(final PlacesResponse.CustomA info, final String place_id, final String photourl) {
-        Log.d(TAG, "fetchDistance: started");
 
-        Call<DistanceResponse> call = mAPIService.getDistance(mLatLngString,
-                info.geometry.locationA.lat + "," + info.geometry.locationA.lng,
-                GCP_API_KEY);
+        Log.i(TAG, "Distance API call start");
+
+        Call<DistanceResponse> call = mAPIService.getDistance(mLatLngString, info.geometry.locationA.lat + "," + info.geometry.locationA.lng, GCP_API_KEY);
 
         call.enqueue(new Callback<DistanceResponse>() {
             @Override
             public void onResponse(Call<DistanceResponse> call, Response<DistanceResponse> response) {
 
-                DistanceResponse resultDistance = response.body();
+                DistanceResponse resultDistance = (DistanceResponse) response.body();
 
                 if (response.isSuccessful()) {
 
@@ -253,14 +256,12 @@ public class MainActivity extends AppCompatActivity
                     }
 
                 } else if (response.code() != 200) {
-                    Toast.makeText(getApplicationContext(), "Error " + response.code()
-                            + " found.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Error " + response.code() + " found.", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call call, Throwable t) {
-                Log.d(TAG, "onFailure: yup failed fetching details");
                 Toast.makeText(getApplicationContext(), "Error in Fetching Details,Please Refresh", Toast.LENGTH_SHORT).show();
                 call.cancel();
             }
@@ -269,15 +270,14 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    private void fetchPlace_details(final PlacesResponse.CustomA info, final String place_id,
-                                    final String totaldistance, final String name, final String photourl) {
+    private void fetchPlace_details(final PlacesResponse.CustomA info, final String place_id, final String totaldistance, final String name, final String photourl) {
 
         Call<Places_details> call = mAPIService.getPlaceDetails(place_id, GCP_API_KEY);
         call.enqueue(new Callback<Places_details>() {
             @Override
             public void onResponse(Call<Places_details> call, Response<Places_details> response) {
 
-                Places_details details = response.body();
+                Places_details details = (Places_details) response.body();
 
                 if ("OK".equalsIgnoreCase(details.status)) {
 
@@ -285,10 +285,9 @@ public class MainActivity extends AppCompatActivity
                     String phone = details.result.international_phone_number;
                     float rating = details.result.rating;
 
-                    details_modal.add(new PlacesDetails_Modal(address, phone, rating,
-                            totaldistance, name, photourl));
+                    details_modal.add(new PlacesDetails_Modal(address, phone, rating, totaldistance, name, photourl));
 
-                    Log.d(TAG, "onResponse: details: " + info.name + " " + address);
+                    Log.i("details : ", info.name + "  " + address);
 
                     if (details_modal.size() == results.size()) {
 
@@ -300,8 +299,7 @@ public class MainActivity extends AppCompatActivity
                         });
 
                         mProgressBar.setVisibility(View.GONE);
-                        Rv_adapter adapterStores = new Rv_adapter(getApplicationContext(),
-                                details_modal, mAddressOutput);
+                        Rv_adapter adapterStores = new Rv_adapter(getApplicationContext(), details_modal, mAddressOutput);
                         mRestuarantsRecyclerView.setAdapter(adapterStores);
                         adapterStores.notifyDataSetChanged();
                     }
@@ -331,7 +329,8 @@ public class MainActivity extends AppCompatActivity
 
                 if ("OK".equalsIgnoreCase(details.status)) {
                     mAddressOutput = details.results.get(0).formatted_adress;
-                    Log.d(TAG, "onResponse: addr current and coords" + mAddressOutput + latLngString);
+                    Log.d(TAG, "onResponse: addr current and coords" + mAddressOutput
+                            + latLngString);
                 }
 
             }
@@ -425,20 +424,43 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        mLocationPermissionGranted = false;
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        Log.i("On request permiss", "executed");
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
         switch (requestCode) {
-            case PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+            case MY_PERMISION_CODE:
+
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     mLocationPermissionGranted = true;
+                    getUserLocation();
+                } else {
+                    showAlert();
+                    mLocationPermissionGranted = false;
+                    Toast.makeText(getApplicationContext(), "Please switch on GPS to access the features", Toast.LENGTH_LONG).show();
+                    mProgressBar.setVisibility(View.GONE);
+
                 }
-            }
+                break;
+
         }
     }
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode,
+//                                           @NonNull String[] permissions,
+//                                           @NonNull int[] grantResults) {
+//        mLocationPermissionGranted = false;
+//        switch (requestCode) {
+//            case PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
+//                // If request is cancelled, the result arrays are empty.
+//                if (grantResults.length > 0
+//                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                    mLocationPermissionGranted = true;
+//                }
+//            }
+//        }
+//    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -458,8 +480,8 @@ public class MainActivity extends AppCompatActivity
                                 public void onSuccess(Location location) {
                                     if (location != null) {
                                         mLastLocation = location;
-                                        mSource_lat = location.getLatitude();
-                                        mSource_lng = location.getLongitude();
+                                        mSourceLat = location.getLatitude();
+                                        mSourceLng = location.getLongitude();
                                         mLatLngString = location.getLatitude() + ", " + location.getLongitude();
 
                                         fetchCurrentAddress(mLatLngString);
@@ -511,11 +533,11 @@ public class MainActivity extends AppCompatActivity
         String message;
 
         if (isConnected) {
-            message = "Good! Connected to Internet";
+            message = "Sweet! Connected to the internet";
             color = Color.WHITE;
             getUserLocation(); // debug this
         } else {
-            message = "Sorry! Not connected to internet";
+            message = "Sorry! Not connected to the internet";
             color = Color.RED;
         }
 
@@ -569,8 +591,8 @@ public class MainActivity extends AppCompatActivity
 
                             if (location != null) {
                                 mLastLocation = location;
-                                mSource_lat = location.getLatitude();
-                                mSource_lng = location.getLongitude();
+                                mSourceLat = location.getLatitude();
+                                mSourceLng = location.getLongitude();
                                 mLatLngString = location.getLatitude() + ", " + location.getLongitude();
 
                                 fetchCurrentAddress(mLatLngString);
@@ -768,35 +790,6 @@ public class MainActivity extends AppCompatActivity
                 //        getChatrooms();
                 mGoogleApiClient.isConnected();
                 // getLocationUser();
-                if (ActivityCompat.checkSelfPermission(this,
-                        Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                        && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-                        != PackageManager.PERMISSION_GRANTED) {
-                    return;
-                }
-                mFusedLocationProviderClient.getLastLocation().addOnSuccessListener(this,
-                        new OnSuccessListener<Location>() {
-                            @Override
-                            public void onSuccess(Location location) {
-                                if (location != null) {
-                                    mLastLocation = location;
-                                    mSource_lat = location.getLatitude();
-                                    mSource_lng = location.getLongitude();
-                                    mLatLngString = location.getLatitude() + ", " + location.getLongitude();
-
-                                    fetchCurrentAddress(mLatLngString);
-                                    Log.d(TAG, "onSuccess: LatLngString = " + mLatLngString);
-
-                                    fetchStores("restaurant");
-//                                    mTextView.setText(mLatLngString); // lets see if this changes the TextView
-                                } else {
-                                    Log.d(TAG, "onSuccess: failed to find location");
-                                    mProgressBar.setVisibility(View.GONE);
-                                    Toast.makeText(getApplicationContext(), "Error in fetching the" +
-                                            " location", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        });
             } else {
                 getLocationPermission();
             }
