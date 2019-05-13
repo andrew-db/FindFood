@@ -13,7 +13,7 @@ public interface APIInterface {
     @GET("place/nearbysearch/json?")
     Call<PlacesResponse.Root> doPlaces(
             @Query(value = "location", encoded = true) String location,
-            @Query(value = "radius", encoded = true) long radius,
+            @Query(value = "radius", encoded = true) double radius,
             @Query(value = "type", encoded = true) String type,
             @Query(value = "key", encoded = true) String key);
 

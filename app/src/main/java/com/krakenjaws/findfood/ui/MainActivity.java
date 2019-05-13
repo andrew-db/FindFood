@@ -95,7 +95,8 @@ public class MainActivity extends AppCompatActivity
     private String mLatLngString;
     protected Location mLastLocation;
     public double mSourceLat, mSourceLng;
-    private long radius = 3 * 1000;
+    // Radius specifies the radius of the circle around our gps latLng coord in meters
+    private long radius = 11 * 1000; // 10miles range
     public String Location_type = "ROOFTOP";
 
 //    private ArrayList<Chatroom> mChatrooms = new ArrayList<>();
@@ -234,6 +235,7 @@ public class MainActivity extends AppCompatActivity
             public void onResponse(Call<DistanceResponse> call, Response<DistanceResponse> response) {
 
                 DistanceResponse resultDistance = (DistanceResponse) response.body();
+                Log.d(TAG, "resultDistance: " + resultDistance);
 
                 if (response.isSuccessful()) {
 
@@ -247,7 +249,11 @@ public class MainActivity extends AppCompatActivity
 
                             DistanceResponse.InfoDistance.ValueItem itemDistance = element1.distance;
 
-                            String total_distance = itemDistance.text;
+                            double dist; // I want the distance to be in miles! not km so this is done here
+                            // convert meters to mi (1m = 0.0006213712mi)
+                            dist = itemDistance.value * 0.0006213712;
+
+                            String total_distance = dist + " miles";
 
                             fetchPlace_details(info, place_id, total_distance, info.name, photourl);
                         }
@@ -329,8 +335,7 @@ public class MainActivity extends AppCompatActivity
 
                 if ("OK".equalsIgnoreCase(details.status)) {
                     mAddressOutput = details.results.get(0).formatted_adress;
-                    Log.d(TAG, "onResponse: addr current and coords" + mAddressOutput
-                            + latLngString);
+                    Log.i("Addr Current and coord.", mAddressOutput + latLngString);
                 }
 
             }
