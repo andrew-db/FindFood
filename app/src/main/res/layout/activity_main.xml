@@ -13,6 +13,8 @@
 
     </android.support.v7.widget.RecyclerView>
 
+    <!-- It would be cool if this was the random selector for a Restaurant
+    in our RecyclerView List of Restaurants, maybe like a Dice icon?-->
     <!--<android.support.design.widget.FloatingActionButton-->
     <!--android:id="@+id/fab_create_chatroom"-->
     <!--android:layout_width="wrap_content"-->

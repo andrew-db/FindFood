@@ -50,5 +50,6 @@
     <string name="action_profile">Profile</string>
     <string name="current_gps_location">Current GPS Location</string>
     <string name="refresh">Refresh</string>
+    <string name="unable_to_detect_location">Unable to Detect Current Location</string>
 
 </resources>

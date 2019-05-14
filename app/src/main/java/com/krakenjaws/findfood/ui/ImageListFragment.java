@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
  */
 public class ImageListFragment extends Fragment implements
         ImageListRecyclerAdapter.ImageListRecyclerClickListener {
+    // Debug
     private static final String TAG = "ImageListFragment";
     private static final int NUM_COLUMNS = 2;
 
@@ -45,6 +47,7 @@ public class ImageListFragment extends Fragment implements
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Log.d(TAG, "onCreateView: success");
         View view = inflater.inflate(R.layout.fragment_image_list, container, false);
         mRecyclerView = view.findViewById(R.id.image_list_recyclerview);
 

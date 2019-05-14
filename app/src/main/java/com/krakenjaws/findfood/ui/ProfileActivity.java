@@ -1,5 +1,6 @@
 package com.krakenjaws.findfood.ui;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -15,15 +16,14 @@ import com.krakenjaws.findfood.R;
 import com.krakenjaws.findfood.UserClient;
 import com.krakenjaws.findfood.models.User;
 
+import java.util.Objects;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 
 
-public class ProfileActivity extends AppCompatActivity implements
-        View.OnClickListener,
-        IProfile {
-
+public class ProfileActivity extends AppCompatActivity implements View.OnClickListener, IProfile {
+    // Debug
     private static final String TAG = "ProfileActivity";
-
 
     //widgets
     private CircleImageView mAvatarImage;
@@ -36,7 +36,12 @@ public class ProfileActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        // For above android api 19
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        } else { // below
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
         getSupportActionBar().setHomeButtonEnabled(true);
         mAvatarImage = findViewById(R.id.image_choose_avatar);
 
@@ -89,7 +94,6 @@ public class ProfileActivity extends AppCompatActivity implements
 
     @Override
     public void onImageSelected(int resource) {
-
         // remove the image selector fragment
         getSupportFragmentManager().beginTransaction()
                 .setCustomAnimations(R.anim.slide_in_up, R.anim.slide_in_down, R.anim.slide_out_down, R.anim.slide_out_up)

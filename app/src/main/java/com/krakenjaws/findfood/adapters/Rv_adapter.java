@@ -2,6 +2,7 @@ package com.krakenjaws.findfood.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,12 +24,12 @@ import static com.krakenjaws.findfood.R.id.distance;
 
 public class Rv_adapter extends RecyclerView.Adapter<MyViewHolder> {
 
-    private ArrayList<PlacesDetails_Modal> storeModels;
-    private Context context;
-    private String current_address;
-
     private static final int TYPE_HEAD = 0;
     private static final int TYPE_LIST = 1;
+
+    private Context context;
+    private ArrayList<PlacesDetails_Modal> storeModels;
+    private String current_address;
 
 
     public Rv_adapter(Context context, ArrayList<PlacesDetails_Modal> storeModels, String current_address) {
@@ -37,7 +38,6 @@ public class Rv_adapter extends RecyclerView.Adapter<MyViewHolder> {
         this.storeModels = storeModels;
         this.current_address = current_address;
     }
-
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -68,7 +68,8 @@ public class Rv_adapter extends RecyclerView.Adapter<MyViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(MyViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
+
         if (holder.view_type == TYPE_LIST) {
             holder.res_name.setText(storeModels.get(holder.getAdapterPosition() - 1).name);
 
@@ -93,8 +94,9 @@ public class Rv_adapter extends RecyclerView.Adapter<MyViewHolder> {
                     storeModels.get(holder.getAdapterPosition() - 1).address +
                     "  " + storeModels.get(holder.getAdapterPosition() - 1).distance);
         } else if (holder.view_type == TYPE_HEAD) {
+
             if (current_address == null) {
-                holder.current_location.setText("Unable to Detect Current Location");
+                holder.current_location.setText((R.string.unable_to_detect_location));
             } else {
                 holder.current_location.setText(current_address);
             }
@@ -106,7 +108,7 @@ public class Rv_adapter extends RecyclerView.Adapter<MyViewHolder> {
         return storeModels.size() + 1;
     }
 
-    public class MyViewHolder extends RecyclerView.ViewHolder {
+    class MyViewHolder extends RecyclerView.ViewHolder {
 
         TextView res_name;
         TextView res_rating;
@@ -118,22 +120,22 @@ public class Rv_adapter extends RecyclerView.Adapter<MyViewHolder> {
 
         int view_type;
 
-        public MyViewHolder(final View itemView, final int viewType) {
+        MyViewHolder(final View itemView, final int viewType) {
             super(itemView);
 
             if (viewType == TYPE_LIST) {
 
                 view_type = 1;
-                this.res_name = (TextView) itemView.findViewById(R.id.name);
-                this.res_rating = (TextView) itemView.findViewById(R.id.rating);
-                this.res_address = (TextView) itemView.findViewById(R.id.address);
-                this.res_phone = (TextView) itemView.findViewById(R.id.phone);
-                this.res_distance = (TextView) itemView.findViewById(distance);
-                this.res_image = (ImageView) itemView.findViewById(R.id.res_image);
+                this.res_name = itemView.findViewById(R.id.name);
+                this.res_rating = itemView.findViewById(R.id.rating);
+                this.res_address = itemView.findViewById(R.id.address);
+                this.res_phone = itemView.findViewById(R.id.phone);
+                this.res_distance = itemView.findViewById(distance);
+                this.res_image = itemView.findViewById(R.id.res_image);
             } else if (viewType == TYPE_HEAD) {
                 view_type = 0;
-                this.current_location = (TextView) itemView.findViewById(R.id.location_tv);
-                this.location_image = (ImageView) itemView.findViewById(R.id.current_location);
+                this.current_location = itemView.findViewById(R.id.location_tv);
+                this.location_image = itemView.findViewById(R.id.current_location);
                 location_image.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View view) {
