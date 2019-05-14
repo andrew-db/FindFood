@@ -27,8 +27,8 @@ import static android.text.TextUtils.isEmpty;
 import static com.krakenjaws.findfood.util.Check.doStringsMatch;
 
 
-public class RegisterActivity extends AppCompatActivity implements
-        View.OnClickListener {
+public class RegisterActivity extends AppCompatActivity implements View.OnClickListener {
+    // Debug
     private static final String TAG = "RegisterActivity";
 
     //widgets
@@ -41,6 +41,7 @@ public class RegisterActivity extends AppCompatActivity implements
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate: Success");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
         mEmail = findViewById(R.id.input_email);
@@ -58,13 +59,11 @@ public class RegisterActivity extends AppCompatActivity implements
     /**
      * Register a new email and password to Firebase Authentication
      *
-     * @param email
-     * @param password
+     * @param email    Users email
+     * @param password Users pass
      */
     public void registerNewEmail(final String email, String password) {
-
         showDialog();
-
         FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
@@ -73,16 +72,13 @@ public class RegisterActivity extends AppCompatActivity implements
 
                         if (task.isSuccessful()) {
                             Log.d(TAG, "onComplete: AuthState: " + FirebaseAuth.getInstance().getCurrentUser().getUid());
-
                             //insert some default data
                             User user = new User();
                             user.setEmail(email);
                             user.setUsername(email.substring(0, email.indexOf("@")));
                             user.setUser_id(FirebaseAuth.getInstance().getUid());
 
-                            FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
-                                    .setTimestampsInSnapshotsEnabled(true)
-                                    .build();
+                            FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder().build();
                             mDb.setFirestoreSettings(settings);
 
                             DocumentReference newUserRef = mDb
@@ -119,7 +115,6 @@ public class RegisterActivity extends AppCompatActivity implements
      */
     private void redirectLoginScreen() {
         Log.d(TAG, "redirectLoginScreen: redirecting to login screen.");
-
         Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
         startActivity(intent);
         finish();
@@ -146,6 +141,7 @@ public class RegisterActivity extends AppCompatActivity implements
         //check for null valued EditText fields
         if (view.getId() == R.id.btn_register) {
             Log.d(TAG, "onClick: attempting to register.");
+
             if (!isEmpty(mEmail.getText().toString())
                     && !isEmpty(mPassword.getText().toString())
                     && !isEmpty(mConfirmPassword.getText().toString())) {
@@ -158,7 +154,6 @@ public class RegisterActivity extends AppCompatActivity implements
                 } else {
                     Toast.makeText(RegisterActivity.this, "Passwords do not Match", Toast.LENGTH_SHORT).show();
                 }
-
             } else {
                 Toast.makeText(RegisterActivity.this, "You must fill out all the fields", Toast.LENGTH_SHORT).show();
             }

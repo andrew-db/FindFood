@@ -54,6 +54,7 @@ import com.krakenjaws.findfood.response.Places_details;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -64,30 +65,30 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static com.krakenjaws.findfood.Constants.BASE_URL;
 import static com.krakenjaws.findfood.Constants.ERROR_DIALOG_REQUEST;
 import static com.krakenjaws.findfood.Constants.GCP_API_KEY;
-import static com.krakenjaws.findfood.Constants.MY_PERMISION_CODE;
 import static com.krakenjaws.findfood.Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
 import static com.krakenjaws.findfood.Constants.PERMISSIONS_REQUEST_ENABLE_GPS;
 import static com.krakenjaws.findfood.Constants.PREFS_FILE_NAME;
 
-
+/**
+ * Our main view after logging in to our profile.
+ */
 public class MainActivity extends AppCompatActivity
         implements View.OnClickListener, GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
+    // Debug
     private static final String TAG = "MainActivity";
 
-    //lists
+    // Lists
     ArrayList<PlacesResponse.CustomA> results;
     ArrayList<PlacesDetails_Modal> details_modal;
 
-
-    //widgets
+    // Widgets
     private APIInterface mAPIService;
     private RelativeLayout mRelativeLayout;
     private RecyclerView mRestuarantsRecyclerView;
     private ProgressBar mProgressBar;
-//    private TextView mTextView;
 
-    //vars
+    // Variables
     private boolean mLocationPermissionGranted = false;
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private GoogleApiClient mGoogleApiClient;
@@ -95,9 +96,11 @@ public class MainActivity extends AppCompatActivity
     private String mLatLngString;
     protected Location mLastLocation;
     public double mSourceLat, mSourceLng;
-    // Radius specifies the radius of the circle around our gps latLng coord in meters
-    private long radius = 11 * 1000; // 10miles range
-    public String Location_type = "ROOFTOP";
+    // Radius specifies the radius of the circle around our gps lat,Lng coords in meters
+    // TODO The recommended best practice is to set radius based on the accuracy of the location signal as given by the location sensor.
+    //       Note that setting a radius biases results to the indicated area, but may not fully restrict results to the specified area.
+    private long radius = 3 * 1000;
+    public String Location_type = "ROOFTOP"; // this may not be needed but idk yet
 
 //    private ArrayList<Chatroom> mChatrooms = new ArrayList<>();
 //    private Set<String> mChatroomIds = new HashSet<>();
@@ -113,7 +116,6 @@ public class MainActivity extends AppCompatActivity
         mRelativeLayout = findViewById(R.id.relLayout_main);
         mRestuarantsRecyclerView = findViewById(R.id.recyclerView_main);
         mProgressBar = findViewById(R.id.progressBar);
-//        mTextView = findViewById(R.id.location_tv);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             mProgressBar.setProgress(0, true);
@@ -144,101 +146,85 @@ public class MainActivity extends AppCompatActivity
                 .build();
     }
 
-
+    /**
+     * This allows us to "find" the nearby restaurants
+     *
+     * @param placeType we want this to be changeable later.
+     */
     private void fetchStores(String placeType) {
-
         Call<PlacesResponse.Root> call = mAPIService.doPlaces(mLatLngString, radius, placeType, GCP_API_KEY);
         call.enqueue(new Callback<Root>() {
             @Override
             public void onResponse(Call<PlacesResponse.Root> call, Response<PlacesResponse.Root> response) {
                 PlacesResponse.Root root = (Root) response.body();
 
-
                 if (response.isSuccessful()) {
-
                     switch (root.status) {
                         case "OK":
-
                             results = root.customA;
-
-                            details_modal = new ArrayList<PlacesDetails_Modal>();
-                            String photourl;
+                            details_modal = new ArrayList<>();
+                            String photoURL;
                             Log.i(TAG, "fetch stores");
 
-
                             for (int i = 0; i < results.size(); i++) {
-
-                                CustomA info = (CustomA) results.get(i);
-
+                                CustomA info = results.get(i);
                                 String place_id = results.get(i).place_id;
 
-
                                 if (results.get(i).photos != null) {
-
                                     String photo_reference = results.get(i).photos.get(0).photo_reference;
-
-                                    photourl = BASE_URL + "place/photo?maxwidth=100&photoreference=" + photo_reference +
+                                    photoURL = BASE_URL + "place/photo?maxwidth=100&photoreference=" + photo_reference +
                                             "&key=" + GCP_API_KEY;
-
                                 } else {
-                                    photourl = "NA";
+                                    photoURL = "N/A";
                                 }
-
-                                fetchDistance(info, place_id, photourl);
-
-
-                                Log.i("Coordinates  ", info.geometry.locationA.lat + " , " + info.geometry.locationA.lng);
+                                fetchDistance(info, place_id, photoURL);
+                                Log.i("Coordinates  ", info.geometry.locationA.lat + "," + info.geometry.locationA.lng);
                                 Log.i("Names  ", info.name);
-
                             }
-
                             break;
                         case "ZERO_RESULTS":
                             Toast.makeText(getApplicationContext(), "No matches found near you", Toast.LENGTH_SHORT).show();
-                            mProgressBar.setVisibility(View.GONE);
+                            hideDialog();
                             break;
                         case "OVER_QUERY_LIMIT":
                             Toast.makeText(getApplicationContext(), "You have reached the Daily Quota of Requests", Toast.LENGTH_SHORT).show();
-                            mProgressBar.setVisibility(View.GONE);
+                            hideDialog();
                             break;
                         default:
                             Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
-                            mProgressBar.setVisibility(View.GONE);
+                            hideDialog();
                             break;
                     }
-
                 } else if (response.code() != 200) {
                     Toast.makeText(getApplicationContext(), "Error " + response.code() + " found.", Toast.LENGTH_SHORT).show();
                 }
-
-
             }
 
             @Override
             public void onFailure(Call call, Throwable t) {
-                Toast.makeText(getApplicationContext(), "Error in Fetching Details,Please Refresh", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Error in Fetching Details, Please Refresh", Toast.LENGTH_SHORT).show();
                 call.cancel();
             }
         });
-
     }
 
-
+    /**
+     * How we determine how far away to restaurant is from our current location
+     *
+     * @param info     our lat, lng coords
+     * @param place_id the id to our restaurant
+     * @param photourl a link with the image of the restaurant
+     */
     private void fetchDistance(final PlacesResponse.CustomA info, final String place_id, final String photourl) {
-
         Log.i(TAG, "Distance API call start");
-
         Call<DistanceResponse> call = mAPIService.getDistance(mLatLngString, info.geometry.locationA.lat + "," + info.geometry.locationA.lng, GCP_API_KEY);
-
         call.enqueue(new Callback<DistanceResponse>() {
             @Override
             public void onResponse(Call<DistanceResponse> call, Response<DistanceResponse> response) {
-
-                DistanceResponse resultDistance = (DistanceResponse) response.body();
+                DistanceResponse resultDistance = response.body();
                 Log.d(TAG, "resultDistance: " + resultDistance);
 
                 if (response.isSuccessful()) {
-
                     Log.i(TAG, resultDistance.status);
 
                     if ("OK".equalsIgnoreCase(resultDistance.status)) {
@@ -246,21 +232,15 @@ public class MainActivity extends AppCompatActivity
                         DistanceResponse.InfoDistance.DistanceElement element1 = row1.elements.get(0);
 
                         if ("OK".equalsIgnoreCase(element1.status)) {
-
+                            double dist; // I want the distance to be in miles! not km
                             DistanceResponse.InfoDistance.ValueItem itemDistance = element1.distance;
-
-                            double dist; // I want the distance to be in miles! not km so this is done here
-                            // convert meters to mi (1m = 0.0006213712mi)
+                            // convert meters to miles (1m = 0.0006213712mi)
                             dist = itemDistance.value * 0.0006213712;
-
-                            String total_distance = dist + " miles";
-
+                            // changed the format to look like '0.0 miles'
+                            String total_distance = String.format(Locale.US, "%.1f miles", dist);
                             fetchPlace_details(info, place_id, total_distance, info.name, photourl);
                         }
-
-
                     }
-
                 } else if (response.code() != 200) {
                     Toast.makeText(getApplicationContext(), "Error " + response.code() + " found.", Toast.LENGTH_SHORT).show();
                 }
@@ -268,50 +248,50 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void onFailure(Call call, Throwable t) {
-                Toast.makeText(getApplicationContext(), "Error in Fetching Details,Please Refresh", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Error in Fetching Details, Please Refresh", Toast.LENGTH_SHORT).show();
                 call.cancel();
             }
         });
 
     }
 
-
+    /**
+     * The other imporant parts we want from the restaurant
+     *
+     * @param info          lat, lng
+     * @param place_id      the restaurant #
+     * @param totaldistance how far away in miles
+     * @param name          the name of the restaurant
+     * @param photourl      image of restaurant
+     */
     private void fetchPlace_details(final PlacesResponse.CustomA info, final String place_id, final String totaldistance, final String name, final String photourl) {
-
         Call<Places_details> call = mAPIService.getPlaceDetails(place_id, GCP_API_KEY);
         call.enqueue(new Callback<Places_details>() {
             @Override
             public void onResponse(Call<Places_details> call, Response<Places_details> response) {
-
-                Places_details details = (Places_details) response.body();
+                Places_details details = response.body();
 
                 if ("OK".equalsIgnoreCase(details.status)) {
-
+                    float rating = details.result.rating;
                     String address = details.result.formatted_adress;
                     String phone = details.result.international_phone_number;
-                    float rating = details.result.rating;
 
                     details_modal.add(new PlacesDetails_Modal(address, phone, rating, totaldistance, name, photourl));
-
-                    Log.i("details : ", info.name + "  " + address);
+                    Log.i("details: ", info.name + "  " + address);
 
                     if (details_modal.size() == results.size()) {
-
                         Collections.sort(details_modal, new Comparator<PlacesDetails_Modal>() {
                             @Override
                             public int compare(PlacesDetails_Modal lhs, PlacesDetails_Modal rhs) {
                                 return lhs.distance.compareTo(rhs.distance);
                             }
                         });
-
-                        mProgressBar.setVisibility(View.GONE);
+                        hideDialog();
                         Rv_adapter adapterStores = new Rv_adapter(getApplicationContext(), details_modal, mAddressOutput);
                         mRestuarantsRecyclerView.setAdapter(adapterStores);
                         adapterStores.notifyDataSetChanged();
                     }
-
                 }
-
             }
 
             @Override
@@ -319,25 +299,19 @@ public class MainActivity extends AppCompatActivity
                 call.cancel();
             }
         });
-
     }
 
-
     private void fetchCurrentAddress(final String latLngString) {
-
-        Call<Places_details> call = mAPIService.getCurrentAddress(latLngString,
-                GCP_API_KEY);
+        Call<Places_details> call = mAPIService.getCurrentAddress(latLngString, GCP_API_KEY);
         call.enqueue(new Callback<Places_details>() {
             @Override
             public void onResponse(Call<Places_details> call, Response<Places_details> response) {
-
                 Places_details details = response.body();
 
                 if ("OK".equalsIgnoreCase(details.status)) {
                     mAddressOutput = details.results.get(0).formatted_adress;
-                    Log.i("Addr Current and coord.", mAddressOutput + latLngString);
+                    Log.i("Addr Current and coords", mAddressOutput + latLngString);
                 }
-
             }
 
             @Override
@@ -345,9 +319,11 @@ public class MainActivity extends AppCompatActivity
                 call.cancel();
             }
         });
-
     }
 
+    /**
+     * Checking for Google Play Services and then GPS
+     */
     private boolean checkMapServices() {
         if (isServicesOK()) {
             return isMapsEnabled();
@@ -361,8 +337,7 @@ public class MainActivity extends AppCompatActivity
                 .setCancelable(false)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-                        Intent enableGpsIntent = new Intent(
-                                android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                        Intent enableGpsIntent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                         startActivityForResult(enableGpsIntent, PERMISSIONS_REQUEST_ENABLE_GPS);
                     }
                 });
@@ -407,9 +382,7 @@ public class MainActivity extends AppCompatActivity
      */
     public boolean isServicesOK() {
         Log.d(TAG, "isServicesOK: checking google services version");
-
-        int available = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(
-                MainActivity.this);
+        int available = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(MainActivity.this);
 
         if (available == ConnectionResult.SUCCESS) {
             //everything is fine and the user can make map requests
@@ -428,94 +401,74 @@ public class MainActivity extends AppCompatActivity
         return false;
     }
 
+    /**
+     * Location permission results
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         Log.i("On request permiss", "executed");
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        switch (requestCode) {
-
-            case MY_PERMISION_CODE:
-
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    mLocationPermissionGranted = true;
-                    getUserLocation();
-                } else {
-                    showAlert();
-                    mLocationPermissionGranted = false;
-                    Toast.makeText(getApplicationContext(), "Please switch on GPS to access the features", Toast.LENGTH_LONG).show();
-                    mProgressBar.setVisibility(View.GONE);
-
-                }
-                break;
-
+        if (requestCode == PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                mLocationPermissionGranted = true;
+                getUserLocation();
+            } else {
+                showAlert();
+                mLocationPermissionGranted = false;
+                Toast.makeText(getApplicationContext(), "Please switch on GPS to access the features", Toast.LENGTH_LONG).show();
+                hideDialog();
+            }
         }
     }
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode,
-//                                           @NonNull String[] permissions,
-//                                           @NonNull int[] grantResults) {
-//        mLocationPermissionGranted = false;
-//        switch (requestCode) {
-//            case PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
-//                // If request is cancelled, the result arrays are empty.
-//                if (grantResults.length > 0
-//                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                    mLocationPermissionGranted = true;
-//                }
-//            }
-//        }
-//    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         Log.d(TAG, "onActivityResult: called.");
-        switch (requestCode) {
-            case PERMISSIONS_REQUEST_ENABLE_GPS: {
-                if (mLocationPermissionGranted) {
+        if (requestCode == PERMISSIONS_REQUEST_ENABLE_GPS) {
+            if (mLocationPermissionGranted) {
 //                    getChatrooms();
-                    getUserLocation();
-                    if (ActivityCompat.checkSelfPermission(this, permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        return;
-                    }
-                    mFusedLocationProviderClient.getLastLocation().addOnSuccessListener(this,
-                            new OnSuccessListener<Location>() {
-                                @Override
-                                public void onSuccess(Location location) {
-                                    if (location != null) {
-                                        mLastLocation = location;
-                                        mSourceLat = location.getLatitude();
-                                        mSourceLng = location.getLongitude();
-                                        mLatLngString = location.getLatitude() + ", " + location.getLongitude();
+                getUserLocation();
 
-                                        fetchCurrentAddress(mLatLngString);
-                                        Log.d(TAG, "onSuccess: LatLngString = " + mLatLngString);
-
-                                        fetchStores("restaurant");
-//                                    mTextView.setText(mLatLngString); // lets see if this changes the TextView
-                                    } else {
-                                        Log.d(TAG, "onSuccess: failed to find location");
-                                        mProgressBar.setVisibility(View.GONE);
-                                        Toast.makeText(getApplicationContext(), "Error in fetching the" +
-                                                " location", Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                            });
-                } else {
-                    getLocationPermission();
+                if (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                        this, ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    return;
                 }
+                mFusedLocationProviderClient.getLastLocation().addOnSuccessListener(
+                        this, new OnSuccessListener<Location>() {
+                            @Override
+                            public void onSuccess(Location location) {
+                                if (location != null) {
+                                    mLastLocation = location;
+                                    mSourceLat = location.getLatitude();
+                                    mSourceLng = location.getLongitude();
+                                    mLatLngString = location.getLatitude() + "," + location.getLongitude();
+                                    fetchCurrentAddress(mLatLngString);
+                                    Log.i(TAG, "onSuccess: LatLng = " + mLatLngString);
+                                    fetchStores("restaurant"); // we could add other options
+                                } else {
+                                    Log.d(TAG, "Failed to find location");
+                                    hideDialog();
+                                    Toast.makeText(getApplicationContext(),
+                                            "Error in fetching the location", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+            } else {
+                getLocationPermission();
             }
         }
     }
 
     /**
-     * Shows us a cool snackbar if we have internet or not
+     * Shows us a cool [snackbar] whether we have internet
      */
     private void checkForInternet() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(
                 Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        // is internet connected?
         if (networkInfo != null && networkInfo.isConnected()) {
             showSnack(true);
         } else {
@@ -525,65 +478,65 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void initSupportActionBar() {
-        setTitle("Find Nearby Restaurants");
+        setTitle("Nearby Restaurants");
     }
 
     /**
-     * True if we are connected or False if we are not
-     *
-     * @param isConnected
+     * Is internet enabled? For Firebase and better GPS locating
      */
     public void showSnack(boolean isConnected) {
         int color;
         String message;
 
         if (isConnected) {
-            message = "Sweet! Connected to the internet";
-            color = Color.WHITE;
+            message = "Connected to the internet";
+            color = Color.GREEN;
             getUserLocation(); // debug this
         } else {
-            message = "Sorry! Not connected to the internet";
+            message = "Not connected to the internet";
             color = Color.RED;
         }
-
-        Snackbar snackbar = Snackbar
-                .make(mRelativeLayout, message, Snackbar.LENGTH_LONG);
-
+        Snackbar snackbar = Snackbar.make(mRelativeLayout, message, Snackbar.LENGTH_LONG);
         View sbView = snackbar.getView();
         TextView textView = sbView.findViewById(android.support.design.R.id.snackbar_text);
         textView.setTextColor(color);
         snackbar.show();
     }
 
+    /**
+     * The crazy amount of permissions we need to get our location
+     */
     private void getUserLocation() {
 
         if (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
+
             if (VERSION.SDK_INT >= VERSION_CODES.M) {
+
                 if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                         ACCESS_FINE_LOCATION) && ActivityCompat.shouldShowRequestPermissionRationale(
                         this, ACCESS_COARSE_LOCATION)) {
+                    Log.d(TAG, "getUserLocation: we are showing the alert for this");
                     showAlert();
-                    Log.d(TAG, "getUserLocation: we showing the alert for this");
                 } else {
+
                     if (isFirstTimeAskingPermission(this, permission.ACCESS_FINE_LOCATION)) {
-                        Log.d(TAG, "getUserLocation: asking");
-                        firstTimeAskingPermission(this,
-                                permission.ACCESS_FINE_LOCATION, false);
-                        ActivityCompat.requestPermissions(this,
-                                new String[]{ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION},
-                                MY_PERMISION_CODE);
+                        Log.d(TAG, "getUserLocation: asking for 1st time permission");
+                        firstTimeAskingPermission(this, permission.ACCESS_FINE_LOCATION, false);
+                        ActivityCompat.requestPermissions(this, new String[]
+                                        {
+                                                ACCESS_COARSE_LOCATION,
+                                                ACCESS_FINE_LOCATION
+                                        },
+                                PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
                     } else {
                         Log.d(TAG, "getUserLocation: you must say YES");
                         Toast.makeText(this, "You won't be able to access the" +
-                                " features of this App", Toast.LENGTH_LONG).show();
-                        mProgressBar.setVisibility(View.GONE);
-                        //Permission disable by device policy or user denied permanently.
-                        // Show proper error message
+                                " features of this App.", Toast.LENGTH_LONG).show();
+                        hideDialog();
                     }
-
                 }
             } else {
                 mLocationPermissionGranted = true;
@@ -593,21 +546,17 @@ public class MainActivity extends AppCompatActivity
                     new OnSuccessListener<Location>() {
                         @Override
                         public void onSuccess(Location location) {
-
                             if (location != null) {
                                 mLastLocation = location;
                                 mSourceLat = location.getLatitude();
                                 mSourceLng = location.getLongitude();
-                                mLatLngString = location.getLatitude() + ", " + location.getLongitude();
-
+                                mLatLngString = location.getLatitude() + "," + location.getLongitude();
                                 fetchCurrentAddress(mLatLngString);
-                                Log.d(TAG, "onSuccess: LatLngString = " + mLatLngString);
-
                                 fetchStores("restaurant");
-
+                                Log.i(TAG, "onSuccess: LatLng = " + mLatLngString);
                             } else {
-                                Log.d(TAG, "onSuccess: failed to find location");
-                                mProgressBar.setVisibility(View.GONE);
+                                Log.d(TAG, "Failed to find location");
+                                hideDialog();
                                 Toast.makeText(getApplicationContext(), "Error in fetching the" +
                                         " location", Toast.LENGTH_SHORT).show();
                             }
@@ -616,43 +565,42 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * Asking the User to turn on GPS with a popup [ DIALOG ]
+     */
     private void showAlert() {
         final AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle("Enable Location")
-                .setMessage("Your Locations Settings are OFF \nPlease Enable Location")
+                .setMessage("Your Location Settings are OFF \nPlease Enable Location")
                 .setPositiveButton("Allow", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-
-
                         ActivityCompat.requestPermissions(MainActivity.this,
-                                new String[]{ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION},
-                                MY_PERMISION_CODE);
-
-
+                                new String[]{
+                                        ACCESS_COARSE_LOCATION,
+                                        ACCESS_FINE_LOCATION
+                                },
+                                PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-
+                        // ...
                     }
                 });
         dialog.show();
     }
 
-    public static void firstTimeAskingPermission(Context context, String permission,
-                                                 boolean isFirstTime) {
+    public static void firstTimeAskingPermission(Context context, String permission, boolean isFirstTime) {
         Log.d(TAG, "firstTimeAskingPermission: true");
-        SharedPreferences sharedPreference = context.getSharedPreferences(PREFS_FILE_NAME,
-                MODE_PRIVATE);
+        SharedPreferences sharedPreference = context.getSharedPreferences(PREFS_FILE_NAME, MODE_PRIVATE);
         sharedPreference.edit().putBoolean(permission, isFirstTime).apply();
     }
 
     public static boolean isFirstTimeAskingPermission(Context context, String permission) {
         Log.d(TAG, "isFirstTimeAskingPermission: true");
-        return context.getSharedPreferences(PREFS_FILE_NAME, MODE_PRIVATE).getBoolean(permission,
-                true);
+        return context.getSharedPreferences(PREFS_FILE_NAME, MODE_PRIVATE).getBoolean(permission, true);
     }
 
     @Override
@@ -662,6 +610,7 @@ public class MainActivity extends AppCompatActivity
 //        }
     }
 
+    // TODO Put chat room in a menu item View that has it's own Activity with these methods
 //    private void initChatroomRecyclerView() {
 //        mChatroomRecyclerAdapter = new ChatroomRecyclerAdapter(mChatrooms, this);
 //        mChatroomRecyclerView.setAdapter(mChatroomRecyclerAdapter);
@@ -827,6 +776,9 @@ public class MainActivity extends AppCompatActivity
 //        navChatroomActivity(mChatrooms.get(position));
 //    }
 
+    /**
+     * When we want to leave the app :'(
+     */
     private void signOut() {
         FirebaseAuth.getInstance().signOut();
         Intent intent = new Intent(this, LoginActivity.class);
@@ -841,35 +793,34 @@ public class MainActivity extends AppCompatActivity
         return super.onCreateOptionsMenu(menu);
     }
 
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_refresh: {
-                mProgressBar.setVisibility(View.VISIBLE);
+                showDialog();
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     mProgressBar.setProgress(0, true);
                 } else {
                     mProgressBar.setProgress(0);
                 }
-
                 ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
                 NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+
                 if (networkInfo != null && networkInfo.isConnected()) {
                     showSnack(true);
                 } else {
-                    mProgressBar.setVisibility(View.GONE);
+                    hideDialog();
                     showSnack(false);
                 }
                 return true;
             }
-            case R.id.action_sign_out: {
-                signOut();
-                return true;
-            }
             case R.id.action_profile: {
                 startActivity(new Intent(this, ProfileActivity.class));
+                return true;
+            }
+            case R.id.action_sign_out: {
+                signOut();
                 return true;
             }
             default: {
@@ -893,7 +844,7 @@ public class MainActivity extends AppCompatActivity
         if (mLocationPermissionGranted) {
             getUserLocation();
         }
-//          requestLocationUpdates();
+//          requestLocationUpdates(); // this is for way later when we want real-time gps
     }
 
     @Override

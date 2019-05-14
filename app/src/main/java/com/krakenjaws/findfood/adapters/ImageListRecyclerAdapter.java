@@ -56,7 +56,7 @@ public class ImageListRecyclerAdapter extends RecyclerView.Adapter<ImageListRecy
         ImageView image;
         ImageListRecyclerClickListener mClickListener;
 
-        public ViewHolder(View itemView, ImageListRecyclerClickListener clickListener) {
+        ViewHolder(View itemView, ImageListRecyclerClickListener clickListener) {
             super(itemView);
             image = itemView.findViewById(R.id.image);
             mClickListener = clickListener;
