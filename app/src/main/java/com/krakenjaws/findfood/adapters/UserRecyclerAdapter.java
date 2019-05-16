@@ -14,7 +14,7 @@ import java.util.ArrayList;
 
 public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapter.ViewHolder> {
 
-    private ArrayList<User> mUsers;
+    private final ArrayList<User> mUsers;
 
     public UserRecyclerAdapter(ArrayList<User> users) {
         this.mUsers = users;
@@ -39,7 +39,8 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
-        TextView username, email;
+        final TextView username;
+        final TextView email;
 
         ViewHolder(View itemView) {
             super(itemView);

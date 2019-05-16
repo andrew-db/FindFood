@@ -21,3 +21,8 @@
 #-renamesourcefileattribute SourceFile
 #-keepattributes Signature
 #-keepattributes *Annotation*
+-keep class io.nivad.** { *; }
+-keep class com.auth0.jwt.** { *; }
+-dontwarn org.**
+-dontwarn javax.**
+-dontwarn com.auth0.jwt.**

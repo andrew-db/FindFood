@@ -51,5 +51,9 @@
     <string name="current_gps_location">Current GPS Location</string>
     <string name="refresh">Refresh</string>
     <string name="unable_to_detect_location">Unable to Detect Current Location</string>
+    <string name="chatrooms">Chatrooms</string>
+    <string name="new_message">new message…</string>
+    <string name="chatroom_name">Chatroom name</string>
+    <string name="choose_an_avatar">Choose an avatar</string>
 
 </resources>

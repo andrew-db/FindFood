@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -7,7 +8,8 @@
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:background="@color/colorPrimaryDark"
-        android:weightSum="4">
+        android:weightSum="4"
+        tools:ignore="UselessParent">
 
         <!--android:background="#FFCC00"-->
 
@@ -15,6 +17,7 @@
             android:id="@+id/location_tv"
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_marginStart="10dp"
             android:layout_marginLeft="10dp"
             android:layout_weight="3.2"
             android:gravity="center_vertical"
@@ -29,9 +32,11 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_marginStart="15dp"
             android:layout_marginLeft="15dp"
             android:layout_weight="0.8"
-            android:src="@drawable/center" />
+            android:src="@drawable/center"
+            tools:ignore="ContentDescription" />
 
     </LinearLayout>
 </RelativeLayout>

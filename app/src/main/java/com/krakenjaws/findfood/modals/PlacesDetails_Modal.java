@@ -3,8 +3,12 @@ package com.krakenjaws.findfood.modals;
 public class PlacesDetails_Modal {
 
     /* Each cardView has one of these in the RecyclerView */
-    public String address, phone_no, distance, name, photourl;
-    public float rating;
+    public final String address;
+    public final String phone_no;
+    public final String distance;
+    public final String name;
+    public final String photourl;
+    public final float rating;
 
     /**
      * The contents of our recycler view summary of Restaurant Location and Details.

@@ -43,7 +43,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.krakenjaws.findfood.APIClient;
 import com.krakenjaws.findfood.R;
-import com.krakenjaws.findfood.adapters.Rv_adapter;
+import com.krakenjaws.findfood.adapters.CardViewRecyclerViewAdapter;
 import com.krakenjaws.findfood.modals.PlacesDetails_Modal;
 import com.krakenjaws.findfood.response.DistanceResponse;
 import com.krakenjaws.findfood.response.PlacesResponse;
@@ -79,8 +79,8 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG = "MainActivity";
 
     // Lists
-    ArrayList<PlacesResponse.CustomA> results;
-    ArrayList<PlacesDetails_Modal> details_modal;
+    private ArrayList<PlacesResponse.CustomA> results;
+    private ArrayList<PlacesDetails_Modal> details_modal;
 
     // Widgets
     private APIInterface mAPIService;
@@ -94,19 +94,15 @@ public class MainActivity extends AppCompatActivity
     private GoogleApiClient mGoogleApiClient;
     private String mAddressOutput;
     private String mLatLngString;
-    protected Location mLastLocation;
-    public double mSourceLat, mSourceLng;
+    private Location mLastLocation;
+    private double mSourceLat;
+    private double mSourceLng;
     // Radius specifies the radius of the circle around our gps lat,Lng coords in meters
     // TODO The recommended best practice is to set radius based on the accuracy of the location signal as given by the location sensor.
     //       Note that setting a radius biases results to the indicated area, but may not fully restrict results to the specified area.
-    private long radius = 3 * 1000;
+    private final long radius = 3 * 1000;
     public String Location_type = "ROOFTOP"; // this may not be needed but idk yet
 
-//    private ArrayList<Chatroom> mChatrooms = new ArrayList<>();
-//    private Set<String> mChatroomIds = new HashSet<>();
-//    private ChatroomRecyclerAdapter mChatroomRecyclerAdapter;
-    //    private ListenerRegistration mChatroomEventListener;
-//    private FirebaseFirestore mDb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,12 +127,8 @@ public class MainActivity extends AppCompatActivity
 
         // To get our location
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-//        findViewById(R.id.fab_create_chatroom).setOnClickListener(this);
-
-//        mDb = FirebaseFirestore.getInstance();
 
         initSupportActionBar();
-//        initChatroomRecyclerView();
         checkForInternet();
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -155,8 +147,8 @@ public class MainActivity extends AppCompatActivity
         Call<PlacesResponse.Root> call = mAPIService.doPlaces(mLatLngString, radius, placeType, GCP_API_KEY);
         call.enqueue(new Callback<Root>() {
             @Override
-            public void onResponse(Call<PlacesResponse.Root> call, Response<PlacesResponse.Root> response) {
-                PlacesResponse.Root root = (Root) response.body();
+            public void onResponse(@NonNull Call<PlacesResponse.Root> call, @NonNull Response<PlacesResponse.Root> response) {
+                PlacesResponse.Root root = response.body();
 
                 if (response.isSuccessful()) {
                     switch (root.status) {
@@ -201,7 +193,7 @@ public class MainActivity extends AppCompatActivity
             }
 
             @Override
-            public void onFailure(Call call, Throwable t) {
+            public void onFailure(@NonNull Call call, @NonNull Throwable t) {
                 Toast.makeText(getApplicationContext(), "Error in Fetching Details, Please Refresh", Toast.LENGTH_SHORT).show();
                 call.cancel();
             }
@@ -220,7 +212,7 @@ public class MainActivity extends AppCompatActivity
         Call<DistanceResponse> call = mAPIService.getDistance(mLatLngString, info.geometry.locationA.lat + "," + info.geometry.locationA.lng, GCP_API_KEY);
         call.enqueue(new Callback<DistanceResponse>() {
             @Override
-            public void onResponse(Call<DistanceResponse> call, Response<DistanceResponse> response) {
+            public void onResponse(@NonNull Call<DistanceResponse> call, @NonNull Response<DistanceResponse> response) {
                 DistanceResponse resultDistance = response.body();
                 Log.d(TAG, "resultDistance: " + resultDistance);
 
@@ -247,7 +239,7 @@ public class MainActivity extends AppCompatActivity
             }
 
             @Override
-            public void onFailure(Call call, Throwable t) {
+            public void onFailure(@NonNull Call call, @NonNull Throwable t) {
                 Toast.makeText(getApplicationContext(), "Error in Fetching Details, Please Refresh", Toast.LENGTH_SHORT).show();
                 call.cancel();
             }
@@ -268,7 +260,7 @@ public class MainActivity extends AppCompatActivity
         Call<Places_details> call = mAPIService.getPlaceDetails(place_id, GCP_API_KEY);
         call.enqueue(new Callback<Places_details>() {
             @Override
-            public void onResponse(Call<Places_details> call, Response<Places_details> response) {
+            public void onResponse(@NonNull Call<Places_details> call, @NonNull Response<Places_details> response) {
                 Places_details details = response.body();
 
                 if ("OK".equalsIgnoreCase(details.status)) {
@@ -287,7 +279,7 @@ public class MainActivity extends AppCompatActivity
                             }
                         });
                         hideDialog();
-                        Rv_adapter adapterStores = new Rv_adapter(getApplicationContext(), details_modal, mAddressOutput);
+                        CardViewRecyclerViewAdapter adapterStores = new CardViewRecyclerViewAdapter(getApplicationContext(), details_modal, mAddressOutput);
                         mRestuarantsRecyclerView.setAdapter(adapterStores);
                         adapterStores.notifyDataSetChanged();
                     }
@@ -295,7 +287,7 @@ public class MainActivity extends AppCompatActivity
             }
 
             @Override
-            public void onFailure(Call call, Throwable t) {
+            public void onFailure(@NonNull Call call, @NonNull Throwable t) {
                 call.cancel();
             }
         });
@@ -305,7 +297,7 @@ public class MainActivity extends AppCompatActivity
         Call<Places_details> call = mAPIService.getCurrentAddress(latLngString, GCP_API_KEY);
         call.enqueue(new Callback<Places_details>() {
             @Override
-            public void onResponse(Call<Places_details> call, Response<Places_details> response) {
+            public void onResponse(@NonNull Call<Places_details> call, @NonNull Response<Places_details> response) {
                 Places_details details = response.body();
 
                 if ("OK".equalsIgnoreCase(details.status)) {
@@ -315,7 +307,7 @@ public class MainActivity extends AppCompatActivity
             }
 
             @Override
-            public void onFailure(Call call, Throwable t) {
+            public void onFailure(@NonNull Call call, @NonNull Throwable t) {
                 call.cancel();
             }
         });
@@ -348,7 +340,7 @@ public class MainActivity extends AppCompatActivity
     /**
      * Does user have GPS enabled?
      */
-    public boolean isMapsEnabled() {
+    private boolean isMapsEnabled() {
         final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -380,7 +372,7 @@ public class MainActivity extends AppCompatActivity
     /**
      * Does user have Google Play Services enabled?
      */
-    public boolean isServicesOK() {
+    private boolean isServicesOK() {
         Log.d(TAG, "isServicesOK: checking google services version");
         int available = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(MainActivity.this);
 
@@ -484,7 +476,7 @@ public class MainActivity extends AppCompatActivity
     /**
      * Is internet enabled? For Firebase and better GPS locating
      */
-    public void showSnack(boolean isConnected) {
+    private void showSnack(boolean isConnected) {
         int color;
         String message;
 
@@ -592,144 +584,15 @@ public class MainActivity extends AppCompatActivity
         dialog.show();
     }
 
-    public static void firstTimeAskingPermission(Context context, String permission, boolean isFirstTime) {
+    private static void firstTimeAskingPermission(Context context, String permission, boolean isFirstTime) {
         Log.d(TAG, "firstTimeAskingPermission: true");
         SharedPreferences sharedPreference = context.getSharedPreferences(PREFS_FILE_NAME, MODE_PRIVATE);
         sharedPreference.edit().putBoolean(permission, isFirstTime).apply();
     }
 
-    public static boolean isFirstTimeAskingPermission(Context context, String permission) {
+    private static boolean isFirstTimeAskingPermission(Context context, String permission) {
         Log.d(TAG, "isFirstTimeAskingPermission: true");
         return context.getSharedPreferences(PREFS_FILE_NAME, MODE_PRIVATE).getBoolean(permission, true);
-    }
-
-    @Override
-    public void onClick(View view) {
-//        if (view.getId() == R.id.fab_create_chatroom) {
-//            newChatroomDialog();
-//        }
-    }
-
-    // TODO Put chat room in a menu item View that has it's own Activity with these methods
-//    private void initChatroomRecyclerView() {
-//        mChatroomRecyclerAdapter = new ChatroomRecyclerAdapter(mChatrooms, this);
-//        mChatroomRecyclerView.setAdapter(mChatroomRecyclerAdapter);
-//        mChatroomRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-//    }
-
-//    private void getChatrooms() {
-//
-//        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
-//                .setTimestampsInSnapshotsEnabled(true)
-//                .build();
-//        mDb.setFirestoreSettings(settings);
-//
-//        CollectionReference chatroomsCollection = mDb
-//                .collection(getString(R.string.collection_chatrooms));
-//
-//        mChatroomEventListener = chatroomsCollection.addSnapshotListener(
-//        new EventListener<QuerySnapshot>() {
-//            @Override
-//            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
-//            @Nullable FirebaseFirestoreException e) {
-//                Log.d(TAG, "onEvent: called.");
-//
-//                if (e != null) {
-//                    Log.e(TAG, "onEvent: Listen failed.", e);
-//                    return;
-//                }
-//
-//                if (queryDocumentSnapshots != null) {
-//                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-//
-//                        Chatroom chatroom = doc.toObject(Chatroom.class);
-//                        if (!mChatroomIds.contains(chatroom.getChatroom_id())) {
-//                            mChatroomIds.add(chatroom.getChatroom_id());
-//                            mChatrooms.add(chatroom);
-//                        }
-//                    }
-//                    Log.d(TAG, "onEvent: number of chatrooms: " + mChatrooms.size());
-//                    mChatroomRecyclerAdapter.notifyDataSetChanged();
-//                }
-//
-//            }
-//        });
-//    }
-
-//    private void buildNewChatroom(String chatroomName) {
-//
-//        final Chatroom chatroom = new Chatroom();
-//        chatroom.setTitle(chatroomName);
-//
-//        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
-//                .setTimestampsInSnapshotsEnabled(true)
-//                .build();
-//        mDb.setFirestoreSettings(settings);
-//
-//        DocumentReference newChatroomRef = mDb
-//                .collection(getString(R.string.collection_chatrooms))
-//                .document();
-//
-//        chatroom.setChatroom_id(newChatroomRef.getId());
-//
-//        newChatroomRef.set(chatroom).addOnCompleteListener(new OnCompleteListener<Void>() {
-//            @Override
-//            public void onComplete(@NonNull Task<Void> task) {
-//                hideDialog();
-//
-//                if (task.isSuccessful()) {
-//                    navChatroomActivity(chatroom);
-//                } else {
-//                    View parentLayout = findViewById(android.R.id.content);
-//                    Snackbar.make(parentLayout, "Something went wrong.", Snackbar.LENGTH_SHORT)
-//                    .show();
-//                }
-//            }
-//        });
-//    }
-
-//    private void navChatroomActivity(Chatroom chatroom) {
-//        Intent intent = new Intent(MainActivity.this, ChatroomActivity.class);
-//        intent.putExtra(getString(R.string.intent_chatroom), chatroom);
-//        startActivity(intent);
-//    }
-
-//    private void newChatroomDialog() {
-//
-//        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-//        builder.setTitle("Enter a chatroom name");
-//
-//        final EditText input = new EditText(this);
-//        input.setInputType(InputType.TYPE_CLASS_TEXT);
-//        builder.setView(input);
-//
-//        builder.setPositiveButton("CREATE", new DialogInterface.OnClickListener() {
-//            @Override
-//            public void onClick(DialogInterface dialog, int which) {
-//                if (!input.getText().toString().equals("")) {
-//                    buildNewChatroom(input.getText().toString());
-//                } else {
-//                    Toast.makeText(MainActivity.this, "Enter a chatroom name", Toast.LENGTH_SHORT)
-//                    .show();
-//                }
-//            }
-//        });
-//        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-//            @Override
-//            public void onClick(DialogInterface dialog, int which) {
-//                dialog.cancel();
-//            }
-//        });
-//
-//        builder.show();
-//    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-//        if (mChatroomEventListener != null) {
-//            mChatroomEventListener.remove();
-//        }
     }
 
     /**
@@ -764,17 +627,6 @@ public class MainActivity extends AppCompatActivity
             mGoogleApiClient.connect();
         }
     }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-    }
-
-
-    //    @Override
-//    public void onChatroomSelected(int position) {
-//        navChatroomActivity(mChatrooms.get(position));
-//    }
 
     /**
      * When we want to leave the app :'(
@@ -815,6 +667,11 @@ public class MainActivity extends AppCompatActivity
                 }
                 return true;
             }
+            // We can make this a menu item or an icon action like the refresh button
+            case R.id.action_chatroom: {
+                startActivity(new Intent(this, ChatroomActivity.class));
+                return true;
+            }
             case R.id.action_profile: {
                 startActivity(new Intent(this, ProfileActivity.class));
                 return true;
@@ -844,7 +701,6 @@ public class MainActivity extends AppCompatActivity
         if (mLocationPermissionGranted) {
             getUserLocation();
         }
-//          requestLocationUpdates(); // this is for way later when we want real-time gps
     }
 
     @Override
@@ -856,5 +712,10 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Log.d(TAG, "onConnectionFailed: Error: " + connectionResult.getErrorCode());
+    }
+
+    @Override
+    public void onClick(View v) {
+
     }
 }

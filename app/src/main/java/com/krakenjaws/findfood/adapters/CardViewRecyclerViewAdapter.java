@@ -13,7 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.krakenjaws.findfood.R;
-import com.krakenjaws.findfood.adapters.Rv_adapter.MyViewHolder;
+import com.krakenjaws.findfood.adapters.CardViewRecyclerViewAdapter.MyViewHolder;
 import com.krakenjaws.findfood.modals.PlacesDetails_Modal;
 import com.krakenjaws.findfood.ui.MainActivity;
 import com.squareup.picasso.Picasso;
@@ -22,25 +22,26 @@ import java.util.ArrayList;
 
 import static com.krakenjaws.findfood.R.id.distance;
 
-public class Rv_adapter extends RecyclerView.Adapter<MyViewHolder> {
+public class CardViewRecyclerViewAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
     private static final int TYPE_HEAD = 0;
     private static final int TYPE_LIST = 1;
 
-    private Context context;
-    private ArrayList<PlacesDetails_Modal> storeModels;
-    private String current_address;
+    private final Context context;
+    private final ArrayList<PlacesDetails_Modal> storeModels;
+    private final String current_address;
 
 
-    public Rv_adapter(Context context, ArrayList<PlacesDetails_Modal> storeModels, String current_address) {
+    public CardViewRecyclerViewAdapter(Context context, ArrayList<PlacesDetails_Modal> storeModels, String current_address) {
 
         this.context = context;
         this.storeModels = storeModels;
         this.current_address = current_address;
     }
 
+    @NonNull
     @Override
-    public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
         if (viewType == TYPE_LIST) {
             View itemView = LayoutInflater.from(parent.getContext())

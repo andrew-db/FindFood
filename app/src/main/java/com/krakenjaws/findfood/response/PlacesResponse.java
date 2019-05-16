@@ -11,7 +11,7 @@ public class PlacesResponse {
     public class Root implements Serializable {
 
         @SerializedName("results")
-        public ArrayList<CustomA> customA = new ArrayList<>();
+        public final ArrayList<CustomA> customA = new ArrayList<>();
         @SerializedName("status")
         public String status;
     }
@@ -29,7 +29,7 @@ public class PlacesResponse {
         public String name;
 
         @SerializedName("photos")
-        public ArrayList<Photos> photos = new ArrayList<>();
+        public final ArrayList<Photos> photos = new ArrayList<>();
 
         @SerializedName("place_id")
         public String place_id;
