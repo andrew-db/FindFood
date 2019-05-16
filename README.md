@@ -6,7 +6,7 @@
 3) ~~Viewing nearby restaurants in a CardView-RecyclerView-List~~
 4) ~~User Profiles~~
 5) Navigate to Nearby Restaurant using Google Maps
-6) Chatrooms
+6) ~~Chatrooms~~
 7) Be able to randomly select a Restaurant from the List
 8) Real-time Location Markers??
 9) Profit?
