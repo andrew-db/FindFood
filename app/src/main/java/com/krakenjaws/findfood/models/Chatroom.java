@@ -9,16 +9,16 @@ public class Chatroom implements Parcelable {
     private String title;
     private String chatroom_id;
 
-    public Chatroom() {
-        // Keep this
-    }
-
     public Chatroom(String title, String chatroom_id) {
         this.title = title;
         this.chatroom_id = chatroom_id;
     }
 
-    private Chatroom(Parcel in) {
+    public Chatroom() {
+        // Keep this
+    }
+
+    protected Chatroom(Parcel in) {
         title = in.readString();
         chatroom_id = in.readString();
     }

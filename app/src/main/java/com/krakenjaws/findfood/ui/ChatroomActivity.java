@@ -62,6 +62,9 @@ public class ChatroomActivity extends AppCompatActivity implements View.OnClickL
         mProgressBar = findViewById(R.id.progressBar_chatrooms);
         mChatroomRecyclerView = findViewById(R.id.chatrooms_recycler_view);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+
         findViewById(R.id.fab_create_chatroom).setOnClickListener(this);
 
         mDb = FirebaseFirestore.getInstance();
@@ -223,6 +226,9 @@ public class ChatroomActivity extends AppCompatActivity implements View.OnClickL
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+        }
         switch (item.getItemId()) {
             case R.id.action_sign_out: {
                 signOut();

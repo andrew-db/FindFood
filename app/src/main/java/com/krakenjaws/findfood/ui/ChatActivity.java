@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -244,6 +245,8 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                 .document(FirebaseAuth.getInstance().getUid());
 
         joinChatroomRef.delete();
+        Toast.makeText(this, "You have left the chatroom", Toast.LENGTH_SHORT).show();
+        finish();
     }
 
     private void joinChatroom() {
