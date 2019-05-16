@@ -29,7 +29,7 @@ public class User implements Parcelable {
         avatar = in.readString();
     }
 
-    public static final Creator<User> CREATOR = new Creator<User>() {
+    private static final Creator<User> CREATOR = new Creator<User>() {
         @Override
         public User createFromParcel(Parcel in) {
             return new User(in);
@@ -49,6 +49,7 @@ public class User implements Parcelable {
         this.avatar = avatar;
     }
 
+    @SuppressWarnings("SameReturnValue")
     public static Creator<User> getCREATOR() {
         return CREATOR;
     }

@@ -62,7 +62,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
      * @param email    Users email
      * @param password Users pass
      */
-    public void registerNewEmail(final String email, String password) {
+    private void registerNewEmail(final String email, String password) {
         showDialog();
         FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {

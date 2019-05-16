@@ -3,7 +3,6 @@
     android:id="@+id/relLayout_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary"
     android:orientation="vertical">
 
     <android.support.v7.widget.RecyclerView
@@ -13,8 +12,7 @@
 
     </android.support.v7.widget.RecyclerView>
 
-    <!-- It would be cool if this was the random selector for a Restaurant
-    in our RecyclerView List of Restaurants, maybe like a Dice icon?-->
+    <!--TODO It would be cool if this was the random selector for a Restaurant in our RecyclerView List of Restaurants, maybe like a Dice icon?-->
     <!--<android.support.design.widget.FloatingActionButton-->
     <!--android:id="@+id/fab_create_chatroom"-->
     <!--android:layout_width="wrap_content"-->

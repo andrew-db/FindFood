@@ -72,7 +72,7 @@ public class LoginActivity extends AppCompatActivity implements
         hideSoftKeyboard();
     }
 
-    public void showSnack(boolean isConnected) {
+    private void showSnack(boolean isConnected) {
         int color;
         String message;
 
@@ -124,9 +124,7 @@ public class LoginActivity extends AppCompatActivity implements
                     Toast.makeText(LoginActivity.this, "Authenticated with: " + user.getEmail(), Toast.LENGTH_SHORT).show();
 
                     FirebaseFirestore db = FirebaseFirestore.getInstance();
-                    FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
-                            .setTimestampsInSnapshotsEnabled(true)
-                            .build();
+                    FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder().build();
                     db.setFirestoreSettings(settings);
 
                     DocumentReference userRef = db.collection(getString(R.string.collection_users))

@@ -10,11 +10,11 @@ public class DistanceResponse {
     public String status;
 
     @SerializedName("rows")
-    public ArrayList<InfoDistance> rows = new ArrayList<>();
+    public final ArrayList<InfoDistance> rows = new ArrayList<>();
 
     public class InfoDistance {
         @SerializedName("elements")
-        public ArrayList<DistanceElement> elements = new ArrayList<>();
+        public final ArrayList<DistanceElement> elements = new ArrayList<>();
 
         public class DistanceElement {
             @SerializedName("status")

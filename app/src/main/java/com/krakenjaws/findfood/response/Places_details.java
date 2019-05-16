@@ -8,7 +8,7 @@ import java.util.ArrayList;
 public class Places_details {
 
     @SerializedName("results")
-    public ArrayList<results> results = new ArrayList<>();
+    public final ArrayList<results> results = new ArrayList<>();
 
     @SerializedName("status")
     public String status;

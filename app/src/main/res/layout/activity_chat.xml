@@ -10,9 +10,9 @@
         android:layout_marginBottom="40dp">
 
         <android.support.v7.widget.RecyclerView
-            android:id="@+id/chatmessage_recycler_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:id="@+id/chatmessage_recycler_view">
 
 
         </android.support.v7.widget.RecyclerView>
@@ -27,32 +27,32 @@
         android:background="@drawable/grey_border_top">
 
         <ImageView
-            android:id="@+id/checkmark"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
-            android:src="@drawable/ic_check_green_24dp" />
+            android:src="@drawable/ic_check_green_24dp"
+            android:id="@+id/checkmark" />
 
         <EditText
-            android:id="@+id/input_message"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginLeft="5dp"
-            android:layout_toLeftOf="@+id/checkmark"
+            android:id="@+id/input_message"
             android:background="@null"
+            android:layout_toLeftOf="@+id/checkmark"
             android:gravity="center_vertical"
+            android:textSize="14sp"
             android:hint="new message..."
             android:textColor="@color/black"
-            android:textSize="14sp" />
+            android:layout_marginLeft="5dp" />
 
 
     </RelativeLayout>
 
     <FrameLayout
-        android:id="@+id/user_list_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:id="@+id/user_list_container">
 
     </FrameLayout>
 

@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:paddingStart="10dp"
     android:paddingLeft="10dp"
     android:paddingTop="20dp"
-    android:paddingBottom="20dp">
+    android:paddingBottom="20dp"
+    tools:ignore="RtlSymmetry">
 
     <TextView
         android:id="@+id/chatroom_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Chatroom name"
+        android:text="@string/chatroom_name"
         android:textColor="#000"
-        android:textSize="17sp" />
+        android:textSize="17sp"
+        tools:ignore="MissingConstraints" />
 
 </android.support.constraint.ConstraintLayout>

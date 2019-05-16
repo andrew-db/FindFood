@@ -51,7 +51,6 @@ public class UserListFragment extends Fragment {
         return view;
     }
 
-
     private void initUserListRecyclerView() {
         mUserRecyclerAdapter = new UserRecyclerAdapter(mUserList);
         mUserListRecyclerView.setAdapter(mUserRecyclerAdapter);

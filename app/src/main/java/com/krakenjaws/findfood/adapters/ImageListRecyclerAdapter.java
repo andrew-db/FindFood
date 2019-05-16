@@ -16,9 +16,9 @@ import java.util.ArrayList;
 
 public class ImageListRecyclerAdapter extends RecyclerView.Adapter<ImageListRecyclerAdapter.ViewHolder> {
 
-    private ArrayList<Integer> mImages;
-    private ImageListRecyclerClickListener mImageListRecyclerClickListener;
-    private Context mContext;
+    private final ArrayList<Integer> mImages;
+    private final ImageListRecyclerClickListener mImageListRecyclerClickListener;
+    private final Context mContext;
 
     public ImageListRecyclerAdapter(Context context, ArrayList<Integer> images, ImageListRecyclerClickListener imageListRecyclerClickListener) {
         mContext = context;
@@ -53,8 +53,8 @@ public class ImageListRecyclerAdapter extends RecyclerView.Adapter<ImageListRecy
 
     public class ViewHolder extends RecyclerView.ViewHolder implements
             View.OnClickListener {
-        ImageView image;
-        ImageListRecyclerClickListener mClickListener;
+        final ImageView image;
+        final ImageListRecyclerClickListener mClickListener;
 
         ViewHolder(View itemView, ImageListRecyclerClickListener clickListener) {
             super(itemView);

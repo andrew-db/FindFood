@@ -33,7 +33,7 @@ public class ImageListFragment extends Fragment implements
     private RecyclerView mRecyclerView;
 
     //vars
-    private ArrayList<Integer> mImageResources = new ArrayList<>();
+    private final ArrayList<Integer> mImageResources = new ArrayList<>();
     private IProfile mIProfile;
 
     public ImageListFragment() {

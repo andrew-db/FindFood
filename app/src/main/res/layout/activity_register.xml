@@ -1,4 +1,5 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -15,7 +16,8 @@
                 android:id="@+id/relLayout1"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:padding="20dp">
+                android:padding="20dp"
+                tools:ignore="UselessParent">
 
                 <TextView
                     android:id="@+id/textEmailReg"
@@ -35,7 +37,9 @@
                     android:layout_below="@+id/textEmailReg"
                     android:layout_marginTop="30dp"
                     android:hint="@string/prompt_email"
-                    android:inputType="textEmailAddress" />
+                    android:inputType="textEmailAddress"
+                    android:importantForAutofill="no"
+                    tools:targetApi="o" />
 
 
                 <EditText
@@ -45,7 +49,8 @@
                     android:layout_below="@+id/input_email"
                     android:layout_marginTop="20dp"
                     android:hint="@string/password"
-                    android:inputType="textPassword" />
+                    android:inputType="textPassword"
+                    android:importantForAutofill="no" />
 
                 <EditText
                     android:id="@+id/input_confirm_password"
@@ -54,7 +59,8 @@
                     android:layout_below="@+id/input_password"
                     android:layout_marginTop="20dp"
                     android:hint="@string/confirm_password"
-                    android:inputType="textPassword" />
+                    android:inputType="textPassword"
+                    android:importantForAutofill="no" />
 
 
                 <android.support.v7.widget.AppCompatButton
