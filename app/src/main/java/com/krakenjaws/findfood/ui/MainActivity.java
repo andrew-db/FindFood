@@ -447,9 +447,10 @@ public class MainActivity extends AppCompatActivity
                         mUserLocation.setGeo_point(geoPoint);
                         mUserLocation.setTimestamp(null);
                         saveUserLocation();
-                    } else {
-                        getUserDetails();
                     }
+//                    else {
+//                        getUserDetails();
+//                    }
                 }
             }
         });
@@ -698,7 +699,7 @@ public class MainActivity extends AppCompatActivity
                 getUserLocation();
                 getUserDetails();
 //                setUpMapIfNeeded();
-                getLastKnownLocation();
+//                getLastKnownLocation();
                 // getLocationUpdate
             } else {
                 getLocationPermission();
