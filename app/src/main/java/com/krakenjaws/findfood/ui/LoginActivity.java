@@ -1,13 +1,8 @@
 package com.krakenjaws.findfood.ui;
 
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -15,7 +10,6 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -24,13 +18,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.krakenjaws.findfood.R;
-import com.krakenjaws.findfood.UserClient;
-import com.krakenjaws.findfood.models.User;
 
 import static android.text.TextUtils.isEmpty;
 
@@ -56,42 +44,12 @@ public class LoginActivity extends AppCompatActivity implements
         mProgressBar = findViewById(R.id.progressBar);
         mRelativeLayout = findViewById(R.id.relLayout_login);
 
-        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        if (networkInfo != null && networkInfo.isConnected()) {
-            showSnack(true);
-        } else {
-            mProgressBar.setVisibility(View.GONE);
-            showSnack(false);
-        }
-
         setupFirebaseAuth();
+
         findViewById(R.id.email_sign_in_button).setOnClickListener(this);
         findViewById(R.id.link_register).setOnClickListener(this);
 
         hideSoftKeyboard();
-    }
-
-    private void showSnack(boolean isConnected) {
-        int color;
-        String message;
-
-        if (isConnected) {
-            message = "Good! Connected to Internet";
-            color = Color.WHITE;
-//            getUserLocation(); // debug this
-        } else {
-            message = "Sorry! Not connected to internet";
-            color = Color.RED;
-        }
-
-        Snackbar snackbar = Snackbar
-                .make(mRelativeLayout, message, Snackbar.LENGTH_LONG);
-
-        View sbView = snackbar.getView();
-        TextView textView = sbView.findViewById(android.support.design.R.id.snackbar_text);
-        textView.setTextColor(color);
-        snackbar.show();
     }
 
     private void showDialog() {
@@ -123,23 +81,23 @@ public class LoginActivity extends AppCompatActivity implements
                     Log.d(TAG, "onAuthStateChanged: signed_in:" + user.getUid());
                     Toast.makeText(LoginActivity.this, "Authenticated with: " + user.getEmail(), Toast.LENGTH_SHORT).show();
 
-                    FirebaseFirestore db = FirebaseFirestore.getInstance();
-                    FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder().build();
-                    db.setFirestoreSettings(settings);
-
-                    DocumentReference userRef = db.collection(getString(R.string.collection_users))
-                            .document(user.getUid());
-
-                    userRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            if (task.isSuccessful()) {
-                                Log.d(TAG, "onComplete: successfully set the user client.");
-                                User user = task.getResult().toObject(User.class);
-                                ((UserClient) (getApplicationContext())).setUser(user);
-                            }
-                        }
-                    });
+//                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+//                    FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder().build();
+//                    db.setFirestoreSettings(settings);
+//
+//                    DocumentReference userRef = db.collection(getString(R.string.collection_users))
+//                            .document(user.getUid());
+//
+//                    userRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//                        @Override
+//                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                            if (task.isSuccessful()) {
+//                                Log.d(TAG, "onComplete: successfully set the user client.");
+//                                User user = task.getResult().toObject(User.class);
+//                                ((UserClient) (getApplicationContext())).setUser(user);
+//                            }
+//                        }
+//                    });
 
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

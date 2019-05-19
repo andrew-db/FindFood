@@ -7,7 +7,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
@@ -40,12 +42,15 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.krakenjaws.findfood.APIClient;
 import com.krakenjaws.findfood.R;
+import com.krakenjaws.findfood.UserClient;
 import com.krakenjaws.findfood.adapters.CardViewRecyclerViewAdapter;
 import com.krakenjaws.findfood.modals.PlacesDetails_Modal;
+import com.krakenjaws.findfood.models.User;
 import com.krakenjaws.findfood.models.UserLocation;
 import com.krakenjaws.findfood.response.DistanceResponse;
 import com.krakenjaws.findfood.response.PlacesResponse;
@@ -76,7 +81,7 @@ import static com.krakenjaws.findfood.Constants.PREFS_FILE_NAME;
  */
 public class MainActivity extends AppCompatActivity
         implements View.OnClickListener, GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener {
+        GoogleApiClient.OnConnectionFailedListener, LocationListener {
     // Used for debugging
     private static final String TAG = "MainActivity";
 
@@ -105,6 +110,15 @@ public class MainActivity extends AppCompatActivity
     private final long radius = 3 * 1000;
     private FirebaseFirestore mDb;
     private UserLocation mUserLocation;
+
+    Intent intentThatCalled;
+    public double latitude;
+    public double longitude;
+    public LocationManager locationManager;
+    public Criteria criteria;
+    public String bestProvider;
+
+    String voice2text; //added
 
 
     @Override
@@ -146,6 +160,49 @@ public class MainActivity extends AppCompatActivity
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build();
+
+        intentThatCalled = getIntent();
+        voice2text = intentThatCalled.getStringExtra("v2txt");
+        getLocation();
+    }
+
+    public static boolean isLocationEnabled(Context context) {
+        //...............
+        return true;
+    }
+
+    protected void getLocation() {
+        if (isLocationEnabled(MainActivity.this)) {
+            locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+            criteria = new Criteria();
+            bestProvider = String.valueOf(locationManager.getBestProvider(criteria, true));
+
+            //You can still do this if you like, you might get lucky:
+            if (ActivityCompat.checkSelfPermission(this, permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED
+                    && ActivityCompat.checkSelfPermission(this, permission.ACCESS_COARSE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            Location location = locationManager.getLastKnownLocation(bestProvider);
+            if (location != null) {
+                Log.e("TAG", "GPS is on");
+                latitude = location.getLatitude();
+                longitude = location.getLongitude();
+                Toast.makeText(MainActivity.this, "latitude:" + latitude + " longitude:" + longitude, Toast.LENGTH_SHORT).show();
+                searchNearestPlace(voice2text);
+            } else {
+                //This is what you need:
+                locationManager.requestLocationUpdates(bestProvider, 1000, 0, this);
+            }
+        } else {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    ACCESS_FINE_LOCATION) && ActivityCompat.shouldShowRequestPermissionRationale(
+                    this, ACCESS_COARSE_LOCATION)) {
+                Log.d(TAG, "getUserLocation: we are showing the alert for this");
+                showAlert();
+            }
+        }
     }
 
     /**
@@ -328,24 +385,27 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void getUserDetails() {
-//        if (mUserLocation == null) {
-//            mUserLocation = new UserLocation();
-//
-//            DocumentReference userRef = mDb.collection(getString(R.string.collection_users))
-//                    .document(FirebaseAuth.getInstance().getUid());
-//
-//            userRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-//                @Override
-//                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-//                    if (task.isSuccessful()) {
-//                        Log.d(TAG, "onComplete: successfully got the user details");
-//                        User user = task.getResult().toObject(User.class);
-//                        mUserLocation.setUser(user);
-//                        getLastKnownLocation();
-//                    }
-//                }
-//            });
-//        }
+        if (mUserLocation == null) {
+            mUserLocation = new UserLocation();
+
+            DocumentReference userRef = mDb.collection(getString(R.string.collection_users))
+                    .document(FirebaseAuth.getInstance().getUid());
+
+            userRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        Log.d(TAG, "onComplete: successfully got the user details");
+                        User user = task.getResult().toObject(User.class);
+                        mUserLocation.setUser(user);
+                        ((UserClient) getApplicationContext()).setUser(user);
+                        getLastKnownLocation();
+                    }
+                }
+            });
+        } else {
+            getLastKnownLocation();
+        }
     }
 
     private void saveUserLocation() {
@@ -380,13 +440,16 @@ public class MainActivity extends AppCompatActivity
             public void onComplete(@NonNull Task<Location> task) {
                 if (task.isSuccessful()) {
                     Location location = task.getResult();
-                    GeoPoint geoPoint = new GeoPoint(location.getLatitude(), location.getLongitude());
-                    Log.d(TAG, "onComplete: latitude: " + geoPoint.getLatitude());
-                    Log.d(TAG, "onComplete: longitude: " + geoPoint.getLongitude());
-
-                    mUserLocation.setGeo_point(geoPoint);
-                    mUserLocation.setTimestamp(null);
-                    saveUserLocation();
+                    if (location != null) {
+                        GeoPoint geoPoint = new GeoPoint(location.getLatitude(), location.getLongitude());
+                        Log.d(TAG, "onComplete: latitude: " + geoPoint.getLatitude());
+                        Log.d(TAG, "onComplete: longitude: " + geoPoint.getLongitude());
+                        mUserLocation.setGeo_point(geoPoint);
+                        mUserLocation.setTimestamp(null);
+                        saveUserLocation();
+                    } else {
+                        getUserDetails();
+                    }
                 }
             }
         });
@@ -529,7 +592,7 @@ public class MainActivity extends AppCompatActivity
                 && ActivityCompat.checkSelfPermission(this, ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
 
-            if (VERSION.SDK_INT >= VERSION_CODES.M) { // for apis at 23 or above
+            if (VERSION.SDK_INT >= VERSION_CODES.M) { // for apis at 23 above
 
                 if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                         ACCESS_FINE_LOCATION) && ActivityCompat.shouldShowRequestPermissionRationale(
@@ -553,7 +616,7 @@ public class MainActivity extends AppCompatActivity
                                 " full features of this app", Toast.LENGTH_LONG).show();
                     }
                 }
-            } else {
+            } else { // other apis
                 mLocationPermissionGranted = true;
                 getUserDetails();
             }
@@ -635,7 +698,7 @@ public class MainActivity extends AppCompatActivity
                 getUserLocation();
                 getUserDetails();
 //                setUpMapIfNeeded();
-//                getLastKnownLocation();
+                getLastKnownLocation();
                 // getLocationUpdate
             } else {
                 getLocationPermission();
@@ -655,6 +718,7 @@ public class MainActivity extends AppCompatActivity
     protected void onPause() {
         Log.d(TAG, "onPause: true");
         super.onPause();
+        locationManager.removeUpdates(this);
     }
 
     @Override
@@ -774,5 +838,38 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onClick(View v) {
         // TODO: add a floating dice button that randomly chooses a cardview restaurant from the list
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        //Hey, a non null location! Sweet!
+
+        //remove location callback:
+        locationManager.removeUpdates(this);
+
+        //open the map:
+        latitude = location.getLatitude();
+        longitude = location.getLongitude();
+        Toast.makeText(MainActivity.this, "latitude:" + latitude + " longitude:" + longitude, Toast.LENGTH_SHORT).show();
+        searchNearestPlace(voice2text);
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
+    }
+
+    public void searchNearestPlace(String v2txt) {
+        //.....
     }
 }

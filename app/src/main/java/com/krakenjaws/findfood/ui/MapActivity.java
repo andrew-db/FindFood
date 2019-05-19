@@ -166,4 +166,5 @@ public class MapActivity extends Fragment implements
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
     }
+
 }
