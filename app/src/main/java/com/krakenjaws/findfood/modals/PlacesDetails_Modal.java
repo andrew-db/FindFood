@@ -13,7 +13,7 @@ public class PlacesDetails_Modal {
     /**
      * The contents of our recycler view summary of Restaurant Location and Details.
      *
-     * @param address  Restaurant address on a map.
+     * @param address  Restaurant address on a activity_map.
      * @param phone_no Restaurant's phone number.
      * @param rating   Restaurant rating like on YELP.
      * @param distance How far away the resturant is in kilometers. (1km = 0.6213712mi)

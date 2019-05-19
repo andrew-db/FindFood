@@ -12,8 +12,10 @@ public class Constants {
     // Strings
     public static final String BASE_URL = "https://maps.googleapis.com/maps/api/";
     public static final String PREFS_FILE_NAME = "sharedPreferences";
+    public static final String MAPVIEW_BUNDLE_KEY = "MapViewBundleKey";
 
     // Integers
+    public static final int TWO_MINUTES = 1000 * 60 * 2;
     public static final int ERROR_DIALOG_REQUEST = 9001;
     public static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 9002;
     public static final int PERMISSIONS_REQUEST_ENABLE_GPS = 9003;

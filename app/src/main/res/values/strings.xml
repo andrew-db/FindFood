@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">FindFood</string>
 
-    <string name="google_maps_api_key">AIzaSyCgLleMvDsfxXUUMT78WSXaL1PkILcCWzI</string>
+    <!--<string name="google_maps_api_key">AIzaSyCgLleMvDsfxXUUMT78WSXaL1PkILcCWzI</string>-->
+    <string name="google_maps_api_key">AIzaSyBotPpDZ2bY5k05gul0jSmY5MLgRbyeQI8</string>
 
     <!-- String related to login -->
     <string name="prompt_email">Email</string>
@@ -40,6 +41,7 @@
     <string name="gps_location">gps_location</string>
 
     <!-- Fragments Names -->
+    <string name="fragment_map">Map</string>
     <string name="fragment_user_list">User List</string>
     <string name="fragment_image_list">Image List</string>
 

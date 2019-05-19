@@ -15,7 +15,7 @@
 
     <!--TODO It would be cool if this was the random selector for a Restaurant in our RecyclerView List of Restaurants, maybe like a Dice icon?-->
     <!--<android.support.design.widget.FloatingActionButton-->
-    <!--android:id="@+id/fab_create_chatroom"-->
+    <!--android:id="@+id/fab_roll_random_dice"-->
     <!--android:layout_width="wrap_content"-->
     <!--android:layout_height="wrap_content"-->
     <!--android:layout_margin="20dp"-->
@@ -30,5 +30,12 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:visibility="gone" />
+
+    <FrameLayout
+        android:id="@+id/main_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </FrameLayout>
 
 </RelativeLayout>
