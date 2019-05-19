@@ -3,10 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.krakenjaws.findfood">
 
-    <!-- Very Important -->
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
     <!-- To access GPS -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -39,7 +35,6 @@
         <activity android:name=".ui.ChatroomActivity" />
         <activity android:name=".ui.ChatActivity" />
 
-
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_api_key" />
@@ -52,6 +47,11 @@
             android:name="org.apache.http.legacy"
             android:required="false" />
 
+        <service
+            android:name=".services.LocationService"
+            android:stopWithTask="true">
+
+        </service>
     </application>
 
 </manifest>

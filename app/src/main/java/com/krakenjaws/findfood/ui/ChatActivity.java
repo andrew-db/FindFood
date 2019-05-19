@@ -72,6 +72,11 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         getIncomingIntent();
         initChatroomRecyclerView();
         getChatroomUsers();
+        initSupportActionBar();
+    }
+
+    private void initSupportActionBar() {
+        setTitle("User List");
     }
 
     private void getChatMessages() {
@@ -307,6 +312,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
             }
             case R.id.action_chatroom_user_list: {
                 inflateUserListFragment();
+                item.setVisible(false);
                 return true;
             }
             case R.id.action_chatroom_leave: {
